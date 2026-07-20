@@ -1,0 +1,3114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美国市场汽车销量数据仪表板</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent: #4F46E5;
+  --accent-light: #EEF2FF;
+  --accent-hover: #4338CA;
+  --bg: #F9FAFB;
+  --sidebar-bg: #FFFFFF;
+  --card-bg: #FFFFFF;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --text-tertiary: #9CA3AF;
+  --border: #E5E7EB;
+  --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --sidebar-w: 280px;
+  --transition: 150ms ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.5;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-header h1 .logo-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--accent);
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sidebar-header p {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+  padding-left: 42px;
+}
+
+/* Search */
+.search-box {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.search-box input {
+  width: 100%;
+  padding: 9px 12px 9px 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20' stroke='%239CA3AF'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M9 5a4 4 0 11-8 0 4 4 0 018 0zM17 17l-4.35-4.35'/%3E%3C/svg%3E") 12px center / 16px no-repeat;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  color: var(--text-primary);
+}
+
+.search-box input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+
+.search-box input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Filter sections */
+.filter-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.filter-section h3 {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  margin-bottom: 10px;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pill {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  user-select: none;
+  white-space: nowrap;
+}
+
+.pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+/* Select dropdowns */
+.filter-select-group {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.filter-select-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+
+.filter-select-group select {
+  width: 100%;
+  padding: 9px 32px 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--card-bg);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 16 16'%3E%3Cpath stroke='%239CA3AF' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m4 6 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+.filter-select-group select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+
+.filter-select-group select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #F9FAFB;
+}
+
+.filter-select-group .select-hint {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 6px;
+}
+
+.filter-actions {
+  padding: 12px 20px;
+  display: flex;
+  gap: 8px;
+}
+
+.btn-clear {
+  flex: 1;
+  padding: 7px 12px;
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-align: center;
+}
+
+.btn-clear:hover {
+  background: #FEE2E2;
+  border-color: #FCA5A5;
+  color: #DC2626;
+}
+
+/* ===== Main Area ===== */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  padding: 24px 32px;
+  min-height: 100vh;
+}
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.main-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.main-header .result-count {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: left;
+}
+
+.section-title .result-count {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+/* Stat Cards */
+/* Batch search module */
+.batch-module {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.batch-module-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--transition);
+}
+
+.batch-module-header:hover {
+  background-color: #F9FAFB;
+}
+
+.batch-module-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.batch-module-toggle {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  transition: transform 0.2s ease;
+}
+
+.batch-module-toggle.open {
+  transform: rotate(180deg);
+}
+
+.batch-module-body {
+  padding: 20px;
+  display: none;
+}
+
+.batch-module-body.open {
+  display: block;
+}
+
+.batch-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  color: var(--text-primary);
+  background: #FAFBFC;
+}
+
+.batch-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+  background: var(--card-bg);
+}
+
+.batch-textarea::placeholder {
+  color: #B0B8C4;
+}
+
+.batch-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.batch-hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 8px;
+}
+
+.batch-result-bar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  background: #F8F9FB;
+}
+
+.batch-result-bar.visible {
+  display: flex;
+}
+
+.batch-result-info {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.batch-result-info strong {
+  color: var(--accent);
+}
+
+.batch-output-area {
+  padding: 0 20px 16px;
+}
+
+.batch-output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.batch-output-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.batch-output-textarea {
+  width: 100%;
+  min-height: 60px;
+  max-height: 150px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  background: #F8F9FB;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  resize: vertical;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.batch-output-textarea:empty {
+  color: var(--text-tertiary);
+}
+
+/* Btn styles */
+.btn {
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #4338CA;
+  box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: #F3F4F6;
+  border-color: #D1D5DB;
+}
+
+.btn-success {
+  background: #059669;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #047857;
+  box-shadow: 0 2px 8px rgba(5,150,105,0.3);
+}
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: box-shadow var(--transition), transform var(--transition);
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.stat-card .stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.stat-card .stat-icon.blue { background: #EEF2FF; color: #4F46E5; }
+.stat-card .stat-icon.green { background: #ECFDF5; color: #059669; }
+.stat-card .stat-icon.amber { background: #FFFBEB; color: #D97706; }
+.stat-card .stat-icon.rose { background: #FFF1F2; color: #E11D48; }
+
+.stat-card .stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.stat-card .stat-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* Table Container */
+.table-container {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+thead th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  background: #F9FAFB;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+
+thead th.right {
+  text-align: right;
+}
+
+tbody td {
+  padding: 10px 16px;
+  border-bottom: 1px solid #F3F4F6;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+tbody td.right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+tbody tr:hover {
+  background: #F9FAFB;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.row-num {
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+/* Country Badge */
+.country-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Progress bar cell */
+.progress-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 180px;
+}
+
+.progress-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: #F3F4F6;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+  transition: width 300ms ease;
+}
+
+.progress-pct {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  min-width: 44px;
+  text-align: right;
+}
+
+/* Pagination */
+.pagination-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.pagination-info {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page-btn {
+  min-width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--transition);
+  padding: 0 8px;
+}
+
+.page-btn:hover:not(:disabled):not(.active) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.page-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-ellipsis {
+  min-width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  font-size: 13px;
+}
+
+/* Empty state */
+.search-highlight {
+  color: #DC2626;
+  font-weight: 700;
+}
+
+/* Hot Models Grid */
+.hot-models-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px 20px 20px;
+  align-items: center;
+}
+
+.hot-model-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+  color: #3730A3;
+  border: 1px solid #C7D2FE;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: default;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.hot-model-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-tertiary);
+}
+
+.empty-state .empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.empty-state p {
+  font-size: 14px;
+}
+
+/* Scrollbar */
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 2px;
+}
+
+.table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+.table-wrapper::-webkit-scrollbar-track {
+  background: #F9FAFB;
+}
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 3px;
+}
+
+/* Brand Hierarchy Tree - Mind Map Style */
+.brand-tree {
+  padding: 16px 24px 24px;
+  overflow-x: auto;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.brand-tree ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.brand-tree ul ul {
+  padding-left: 28px;
+  position: relative;
+}
+
+/* Vertical connector line */
+.brand-tree ul ul::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 14px;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(to bottom, #CBD5E1, #E2E8F0);
+  border-radius: 1px;
+}
+
+.brand-tree li {
+  position: relative;
+  padding: 4px 0;
+}
+
+/* Horizontal connector line */
+.brand-tree li::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: -14px;
+  width: 14px;
+  height: 2px;
+  background: #CBD5E1;
+  border-radius: 1px;
+}
+
+.brand-tree > ul > li::before {
+  display: none;
+}
+
+.brand-tree > ul > li > ul::before {
+  left: 14px;
+}
+
+/* Horizontal Mind Map Tree - Container */
+.brand-tree {
+  overflow-x: auto;
+  padding: 12px 8px 20px 8px;
+}
+
+/* Canvas for absolutely positioned nodes + SVG lines */
+.htree-canvas {
+  position: relative;
+}
+
+/* Node wrapper - smooth animation */
+.htree-nodewrap {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.htree-nodewrap.entering {
+  opacity: 0;
+  transform: translateX(-8px);
+}
+
+/* SVG overlay for connection lines */
+.htree-svg-lines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.htree-svg-lines path {
+  transition: opacity 0.2s ease;
+}
+
+/* Brand tree node cards */
+.brand-tree-node {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: default;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  border: 1.5px solid transparent;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.brand-tree-node.l1 {
+  background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+  color: #1E40AF;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 6px 18px;
+  border-color: #93C5FD;
+}
+
+.brand-tree-node.l2 {
+  background: linear-gradient(135deg, #EDE9FE, #DDD6FE);
+  color: #6D28D9;
+  font-weight: 700;
+  border-color: #C4B5FD;
+}
+
+.brand-tree-node.l3 {
+  background: #FFFFFF;
+  color: #475569;
+  cursor: pointer;
+  border-color: #E2E8F0;
+}
+
+.brand-tree-node.l3:hover {
+  background: #F8FAFC;
+  border-color: #CBD5E1;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+
+.brand-tree-node.l3.active {
+  background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+  color: #4338CA;
+  font-weight: 700;
+  border-color: #4F46E5;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.15), 0 2px 4px rgba(0,0,0,0.06);
+}
+
+.brand-tree-node.l4 {
+  background: #F8FAFC;
+  color: #64748B;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-color: #F1F5F9;
+  box-shadow: none;
+}
+
+/* Collapsed toggle button */
+.brand-tree-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+  font-size: 9px;
+  color: #94A3B8;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  border: 1.5px solid #E2E8F0;
+  background: #FFFFFF;
+}
+
+.brand-tree-toggle:hover {
+  background: #E2E8F0;
+  color: #475569;
+  border-color: #CBD5E1;
+}
+
+.brand-tree-toggle.collapsed {
+  transform: rotate(-90deg);
+}
+
+/* Collapse indicator badge */
+.collapse-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748B;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+}
+
+.brand-tree-placeholder {
+  padding: 32px 24px;
+  text-align: center;
+  color: #94A3B8;
+  font-size: 13px;
+}
+
+.brand-tree-placeholder svg {
+  display: block;
+  margin: 0 auto 8px;
+  opacity: 0.4;
+}
+
+/* Highlight: Country node */
+.brand-tree-node.l1.highlight-country {
+  background: linear-gradient(135deg, #FFEDD5, #FED7AA);
+  color: #C2410C;
+  border-color: #FB923C;
+  box-shadow: 0 0 0 3px rgba(251,146,60,0.2), 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* Highlight: Brand node (search match) */
+.brand-tree-node.l3.highlight-brand {
+  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+  color: #B45309;
+  border-color: #FBBF24;
+  box-shadow: 0 0 0 3px rgba(251,191,36,0.15), 0 2px 4px rgba(0,0,0,0.06);
+}
+
+/* Highlight: Model node (exact search match) */
+.brand-tree-node.l4.highlight-model {
+  background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+  color: #1D4ED8;
+  border-color: #60A5FA;
+  font-weight: 700;
+  box-shadow: 0 0 0 3px rgba(96,165,250,0.2);
+}
+
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h1>
+      <span class="logo-icon">A</span>
+      Auto Sales
+    </h1>
+    <p>美国市场汽车销量数据分析</p>
+  </div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="搜索车型名称，如 Camry..." />
+  </div>
+  <div class="filter-select-group">
+    <label>国家 / Country</label>
+    <select id="countrySelect">
+      <option value="">全部国家</option>
+    </select>
+  </div>
+  <div class="filter-select-group">
+    <label>品牌 / Brand</label>
+    <select id="brandSelect">
+      <option value="">全部品牌</option>
+    </select>
+    <div class="select-hint" id="brandHint">品牌按在美国市场的总销量从高到低排列</div>
+  </div>
+  <div class="filter-actions">
+    <button class="btn-clear" id="clearFilters">清除所有筛选</button>
+  </div>
+</aside>
+
+<main class="main">
+  <!-- Batch Search Module -->
+  <div class="batch-module">
+    <div class="batch-module-header" id="batchToggle">
+      <div class="batch-module-title">
+        <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span> 批量检索与导出
+      </div>
+      <span class="batch-module-toggle open" id="batchArrow">&#9660;</span>
+    </div>
+    <div class="batch-module-body open" id="batchBody">
+      <textarea class="batch-textarea" id="batchInput" placeholder="从 Excel 复制多行数据，粘贴到这里&#10;每行格式：品牌(Tab)车型&#10;&#10;示例：&#10;Toyota	Camry&#10;Ford	F-150&#10;Honda	CR-V&#10;&#10;支持空格、Tab分隔"></textarea>
+      <div class="batch-actions">
+        <button class="btn btn-primary" id="batchSearchBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>开始批量检索</button>
+        <button class="btn btn-secondary" id="batchClearBtn">&#10005; 清空</button>
+      </div>
+      <div class="batch-hint">提示：直接从 Excel 选中多列复制粘贴即可，系统自动识别 Tab 和空格分隔</div>
+    </div>
+    <div class="batch-output-area">
+      <div class="batch-output-header">
+        <span class="batch-output-label">车型销量排序</span>
+        <button class="btn btn-success" id="batchCopyBtn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>一键复制结果</button>
+      </div>
+      <textarea class="batch-output-textarea" id="batchOutputArea" readonly placeholder="检索结果将显示在这里..."></textarea>
+    </div>
+  </div>
+
+  <!-- Brand Hierarchy Tree -->
+  <h2 class="section-title" style="margin-bottom:12px;">子母公司架构 <span id="brandTreeBrand" style="color:var(--accent);font-weight:700;margin-left:6px"></span></h2>
+  <div class="table-container" id="brandTreeContainer" style="margin-bottom: 20px; display:none;">
+    <div class="brand-tree" id="brandTree"></div>
+  </div>
+
+  <h2 class="section-title">销量排行 <span class="result-count" id="resultCount"></span></h2>
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card">
+      <div class="stat-icon blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9L18 10l-2.7-3.6A2 2 0 0 0 13.7 5H6.3a2 2 0 0 0-1.6.9L2 10l-2.5 1.1C-1.3 11.3-2 12.1-2 13v3c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg></div>
+      <div class="stat-value" id="statModels">-</div>
+      <div class="stat-label">热卖车型数量</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div class="stat-value" id="statTotal">-</div>
+      <div class="stat-label">总销量</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+      <div class="stat-value" id="statAvg">-</div>
+      <div class="stat-label">平均销量</div>
+  </div>
+  </div>
+
+  <!-- Hot Models Section -->
+  <h2 class="section-title" style="margin-bottom:12px;">最热车型 <span class="result-count" id="hotModelsCount"></span></h2>
+  <div class="table-container" id="hotModelsContainer" style="display:none; margin-bottom: 20px;">
+    <div class="hot-models-grid" id="hotModelsBody"></div>
+  </div>
+
+  <div class="table-container">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>排名</th>
+            <th>国家</th>
+            <th>总公司</th>
+            <th>品牌</th>
+            <th>车型</th>
+            <th class="right">销量</th>
+            <th class="right">品牌总销量</th>
+            <th>销量占比</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination-bar">
+      <div class="pagination-info" id="paginationInfo"></div>
+      <div class="pagination-buttons" id="paginationButtons"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+const RAW_DATA = [{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"3-Series","总排名":61,"销量":798462,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"X5","总排名":96,"销量":511191,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"5-Series","总排名":106,"销量":482733,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"X3","总排名":111,"销量":441537,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"4-Series","总排名":126,"销量":298319,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"X1","总排名":165,"销量":192565,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"7-Series","总排名":213,"销量":109891,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"2-Series","总排名":236,"销量":78053,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"X6","总排名":241,"销量":68839,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"6-Series","总排名":257,"销量":55247,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"X7","总排名":271,"销量":44804,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"i3","总排名":275,"销量":43492,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"X4","总排名":282,"销量":40068,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"1-Series","总排名":294,"销量":36873,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"X2","总排名":298,"销量":34815,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"Z4","总排名":327,"销量":23492,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"8-Series","总排名":363,"销量":12347,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"BMW","车型":"i8","总排名":386,"销量":6968,"品牌总销量":3279696},{"国家":"Germany","总公司":"BMW Group","品牌":"Mini","车型":"Cooper","总排名":109,"销量":463378,"品牌总销量":715967},{"国家":"Germany","总公司":"BMW Group","品牌":"Mini","车型":"Countryman","总排名":174,"销量":167466,"品牌总销量":715967},{"国家":"Germany","总公司":"BMW Group","品牌":"Mini","车型":"Hardtop","总排名":255,"销量":56232,"品牌总销量":715967},{"国家":"Germany","总公司":"BMW Group","品牌":"Mini","车型":"Clubman","总排名":368,"销量":10924,"品牌总销量":715967},{"国家":"Germany","总公司":"BMW Group","品牌":"Mini","车型":"Paceman","总排名":384,"销量":7145,"品牌总销量":715967},{"国家":"Germany","总公司":"BMW Group","品牌":"Mini","车型":"Roadster","总排名":396,"销量":5177,"品牌总销量":715967},{"国家":"Germany","总公司":"BMW Group","品牌":"Mini","车型":"Cooper Clubman","总排名":411,"销量":3105,"品牌总销量":715967},{"国家":"Germany","总公司":"BMW Group","品牌":"Mini","车型":"Cooper Roadster","总排名":414,"销量":2540,"品牌总销量":715967},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"C-Class","总排名":65,"销量":742629,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"E-Class","总排名":83,"销量":563259,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"GLK-Class","总排名":130,"销量":287861,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"GLE-Class","总排名":134,"销量":269876,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"M-Class","总排名":150,"销量":221236,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"Sprinter","总排名":156,"销量":200458,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"GL-Class","总排名":158,"销量":199485,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"GLC-Class","总排名":169,"销量":173523,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"S-Class","总排名":171,"销量":168934,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"CLA-Class","总排名":172,"销量":168707,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"GLA-Class","总排名":184,"销量":152124,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"GLS-Class","总排名":226,"销量":85305,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"CLS-Class","总排名":248,"销量":64132,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"Metris","总排名":262,"销量":51820,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"G-Class","总排名":288,"销量":38186,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"SL-Class","总排名":293,"销量":37192,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"A-Class","总排名":311,"销量":31277,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"GLB-Class","总排名":325,"销量":24358,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"SLK-Class","总排名":339,"销量":23471,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"SLC-Class","总排名":364,"销量":12287,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"AMG GT-Class","总排名":374,"销量":12988,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"R-Class","总排名":387,"销量":6837,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"B-Class","总排名":403,"销量":4127,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"CL-Class","总排名":410,"销量":3452,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"SLS AMG","总排名":413,"销量":2733,"品牌总销量":3546851},{"国家":"Germany","总公司":"Mercedes-Benz Group","品牌":"Mercedes-Benz","车型":"CLK-Class","总排名":428,"销量":594,"品牌总销量":3546851},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Volkswagen","车型":"Jetta","总排名":19,"销量":2063784,"品牌总销量":4768267},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Volkswagen","车型":"Passat","总排名":71,"销量":649075,"品牌总销量":4768267},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Volkswagen","车型":"Golf","总排名":74,"销量":602633,"品牌总销量":4768267},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Volkswagen","车型":"Tiguan","总排名":81,"销量":573926,"品牌总销量":4768267},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Volkswagen","车型":"Beetle","总排名":121,"销量":338199,"品牌总销量":4768267},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Volkswagen","车型":"Atlas","总排名":138,"销量":255665,"品牌总销量":4768267},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Volkswagen","车型":"CC","总排名":207,"销量":116200,"品牌总销量":4768267},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Volkswagen","车型":"Touareg","总排名":258,"销量":54985,"品牌总销量":4768267},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Volkswagen","车型":"Routan","总排名":278,"销量":42129,"品牌总销量":4768267},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Volkswagen","车型":"Eos","总排名":309,"销量":31407,"品牌总销量":4768267},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Volkswagen","车型":"GTI","总排名":313,"销量":29624,"品牌总销量":4768267},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Volkswagen","车型":"Arteon","总排名":391,"销量":6051,"品牌总销量":4768267},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Volkswagen","车型":"e-Golf","总排名":401,"销量":4589,"品牌总销量":4768267},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Audi","车型":"A4","总排名":93,"销量":525995,"品牌总销量":2122472},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Audi","车型":"Q5","总排名":99,"销量":506997,"品牌总销量":2122472},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Audi","车型":"Q7","总排名":141,"销量":247819,"品牌总销量":2122472},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Audi","车型":"A5","总排名":164,"销量":194729,"品牌总销量":2122472},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Audi","车型":"A6","总排名":167,"销量":181910,"品牌总销量":2122472},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Audi","车型":"A3","总排名":170,"销量":173224,"品牌总销量":2122472},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Audi","车型":"Q3","总排名":206,"销量":116466,"品牌总销量":2122472},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Audi","车型":"A7","总排名":251,"销量":62239,"品牌总销量":2122472},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Audi","车型":"A8","总排名":272,"销量":44630,"品牌总销量":2122472},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Audi","车型":"Q8","总排名":315,"销量":28357,"品牌总销量":2122472},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Audi","车型":"TT","总排名":337,"销量":19154,"品牌总销量":2122472},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Audi","车型":"eTron","总排名":362,"销量":12571,"品牌总销量":2122472},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Audi","车型":"R8","总排名":378,"销量":8381,"品牌总销量":2122472},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Porsche","车型":"Cayenne","总排名":176,"销量":164837,"品牌总销量":515958},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Porsche","车型":"Macan","总排名":201,"销量":125789,"品牌总销量":515958},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Porsche","车型":"911","总排名":221,"销量":96812,"品牌总销量":515958},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Porsche","车型":"Panamera","总排名":244,"销量":67824,"品牌总销量":515958},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Porsche","车型":"Boxster","总排名":328,"销量":23348,"品牌总销量":515958},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Porsche","车型":"Cayman","总排名":336,"销量":19912,"品牌总销量":515958},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Porsche","车型":"718","总排名":361,"销量":12603,"品牌总销量":515958},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Porsche","车型":"Taycan","总排名":402,"销量":4534,"品牌总销量":515958},{"国家":"Germany","总公司":"Volkswagen Group","品牌":"Porsche","车型":"918 Spyder","总排名":432,"销量":299,"品牌总销量":515958},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"CR-V","总排名":5,"销量":3510230,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"Civic","总排名":6,"销量":3453755,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"Accord","总排名":7,"销量":3379838,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"Pilot","总排名":32,"销量":1371702,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"Odyssey","总排名":38,"销量":1230693,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"Fit","总排名":90,"销量":537528,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"HR-V","总排名":104,"销量":486669,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"Ridgeline","总排名":147,"销量":226111,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"Crosstour","总排名":209,"销量":112931,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"Insight","总排名":216,"销量":104783,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"Passport","总排名":237,"销量":75852,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"Clarity FCV","总排名":290,"销量":37955,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"CR-Z","总排名":295,"销量":35551,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"Element","总排名":320,"销量":25786,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"S2000","总排名":438,"销量":92,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Honda","车型":"FCX","总排名":441,"销量":39,"品牌总销量":14589515},{"国家":"Japan","总公司":"Honda Motor","品牌":"Acura","车型":"MDX","总排名":79,"销量":579914,"品牌总销量":1739170},{"国家":"Japan","总公司":"Honda Motor","品牌":"Acura","车型":"RDX","总排名":105,"销量":483229,"品牌总销量":1739170},{"国家":"Japan","总公司":"Honda Motor","品牌":"Acura","车型":"TLX","总排名":152,"销量":217007,"品牌总销量":1739170},{"国家":"Japan","总公司":"Honda Motor","品牌":"Acura","车型":"TSX","总排名":178,"销量":162031,"品牌总销量":1739170},{"国家":"Japan","总公司":"Honda Motor","品牌":"Acura","车型":"ILX","总排名":192,"销量":134792,"品牌总销量":1739170},{"国家":"Japan","总公司":"Honda Motor","品牌":"Acura","车型":"TL","总排名":194,"销量":133880,"品牌总销量":1739170},{"国家":"Japan","总公司":"Honda Motor","品牌":"Acura","车型":"RLX","总排名":348,"销量":15043,"品牌总销量":1739170},{"国家":"Japan","总公司":"Honda Motor","品牌":"Acura","车型":"ZDX","总排名":392,"销量":6039,"品牌总销量":1739170},{"国家":"Japan","总公司":"Honda Motor","品牌":"Acura","车型":"RL","总排名":394,"销量":5849,"品牌总销量":1739170},{"国家":"Japan","总公司":"Honda Motor","品牌":"Acura","车型":"NSX","总排名":424,"销量":1386,"品牌总销量":1739170},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Altima","总排名":11,"销量":2909636,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Rogue","总排名":14,"销量":2739409,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Sentra","总排名":27,"销量":1756840,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Versa","总排名":45,"销量":1144086,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Frontier","总排名":67,"销量":715657,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Murano","总排名":68,"销量":688041,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Pathfinder","总排名":69,"销量":684364,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Maxima","总排名":89,"销量":549162,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Titan","总排名":129,"销量":290562,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Armada","总排名":146,"销量":229494,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Juke","总排名":154,"销量":214079,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Leaf","总排名":185,"销量":151466,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"LEAF","总排名":186,"销量":151466,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Kicks","总排名":189,"销量":140363,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"NV200","总排名":202,"销量":122349,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"NV","总排名":204,"销量":119751,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Xterra","总排名":217,"销量":100948,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Quest","总排名":233,"销量":80441,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"370Z","总排名":246,"销量":64366,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"Cube","总排名":256,"销量":55283,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Nissan","车型":"GT-R","总排名":372,"销量":9584,"品牌总销量":12917347},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"QX60","总排名":128,"销量":290611,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"Q50","总排名":137,"销量":260618,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"G","总排名":155,"销量":206489,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"QX80","总排名":197,"销量":132989,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"QX50","总排名":214,"销量":109079,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"Q60","总排名":222,"销量":92519,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"G37","总排名":252,"销量":59844,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"M","总排名":284,"销量":39849,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"QX56","总排名":287,"销量":38494,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"QX70","总排名":304,"销量":32491,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"Q70","总排名":305,"销量":32297,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"JX","总排名":308,"销量":31602,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"FX","总排名":314,"销量":28761,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"QX30","总排名":316,"销量":27831,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"Q40","总排名":326,"销量":24195,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"EX35","总排名":354,"销量":14342,"品牌总销量":1425506},{"国家":"Japan","总公司":"Nissan Motor","品牌":"Infiniti","车型":"EX","总排名":409,"销量":3495,"品牌总销量":1425506},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Camry","总排名":3,"销量":4058109,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"RAV4","总排名":8,"销量":3341721,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Corolla","总排名":12,"销量":2849124,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Prius","总排名":17,"销量":2158133,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Tacoma","总排名":22,"销量":1975376,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Highlander","总排名":25,"销量":1850420,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Tundra","总排名":41,"销量":1198851,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Sienna","总排名":43,"销量":1151029,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"4Runner","总排名":51,"销量":1006043,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Matrix","总排名":100,"销量":506341,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Avalon","总排名":110,"销量":445538,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Yaris","总排名":127,"销量":293561,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Venza","总排名":145,"销量":230184,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"C-HR","总排名":175,"销量":167263,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Sequoia","总排名":198,"销量":131922,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"FJ Cruiser","总排名":239,"销量":70247,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Land Cruiser","总排名":306,"销量":32013,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"86","总排名":355,"销量":14303,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Supra","总排名":375,"销量":8771,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Toyota","车型":"Mirai","总排名":389,"销量":6634,"品牌总销量":21495583},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"RX","总排名":46,"销量":1127259,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"ES","总排名":95,"销量":519023,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"IS","总排名":120,"销量":339529,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"NX","总排名":122,"销量":337494,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"GX","总排名":195,"销量":133526,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"GS","总排名":196,"销量":133215,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"GX460","总排名":218,"销量":99131,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"ES350","总排名":224,"销量":89525,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"LS","总排名":228,"销量":84726,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"CT200h","总排名":234,"销量":79455,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"RC","总排名":268,"销量":46991,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"UX","总排名":302,"销量":34138,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"LX","总排名":321,"销量":25694,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"LX570","总排名":324,"销量":24716,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"HS250h","总排名":356,"销量":14181,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"CT","总排名":358,"销量":13593,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"LC","总排名":385,"销量":6978,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"SC430","总排名":431,"销量":348,"品牌总销量":3109691},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Lexus","车型":"LFA","总排名":437,"销量":169,"品牌总销量":3109691},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Elantra","总排名":18,"销量":2119795,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Sonata","总排名":24,"销量":1887868,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Santa Fe","总排名":44,"销量":1147331,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Accent","总排名":84,"销量":563247,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Tucson","总排名":103,"销量":492955,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Tuscon","总排名":112,"销量":414830,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Genesis","总排名":153,"销量":214171,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Veloster","总排名":157,"销量":199916,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Kona","总排名":161,"销量":196669,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Palisade","总排名":212,"销量":110641,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Ioniq","总排名":253,"销量":59417,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Azera","总排名":270,"销量":45000,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Veracruz","总排名":317,"销量":26295,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Venue","总排名":338,"销量":18664,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Equus","总排名":340,"销量":18067,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Hyundai","车型":"Nexo","总排名":429,"销量":483,"品牌总销量":7515349},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Soul","总排名":37,"销量":1231458,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Optima","总排名":39,"销量":1216531,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Sorento","总排名":42,"销量":1176706,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Forte","总排名":56,"销量":938335,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Sportage","总排名":72,"销量":647375,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Rio","总排名":125,"销量":302293,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Sedona","总排名":144,"销量":236823,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Telluride","总排名":193,"销量":134051,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Niro","总排名":220,"销量":97324,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Seltos","总排名":269,"销量":46280,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Cadenza","总排名":273,"销量":44572,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Stinger","总排名":274,"销量":44089,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"K5","总排名":307,"销量":31656,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Borrego","总排名":370,"销量":10264,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"K900","总排名":390,"销量":6194,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Rondo","总排名":408,"销量":3635,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Kia","车型":"Amanti","总排名":433,"销量":289,"品牌总销量":6167875},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Genesis","车型":"G80","总排名":281,"销量":40262,"品牌总销量":75103},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Genesis","车型":"G70","总排名":332,"销量":21697,"品牌总销量":75103},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Genesis","车型":"G90","总排名":367,"销量":11627,"品牌总销量":75103},{"国家":"South Korea","总公司":"Hyundai Motor","品牌":"Genesis","车型":"GV80","总排名":423,"销量":1517,"品牌总销量":75103},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"F-Series","总排名":1,"销量":8366980,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"Explorer","总排名":9,"销量":3022574,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"Escape","总排名":10,"销量":2922499,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"Fusion","总排名":15,"销量":2536632,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"Focus","总排名":30,"销量":1577916,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"Edge","总排名":31,"销量":1389114,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"Transit","总排名":47,"销量":1113099,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"Mustang","总排名":57,"销量":906541,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"Taurus","总排名":60,"销量":803043,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"Expedition","总排名":82,"销量":570962,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"Fiesta","总排名":86,"销量":557633,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"E-Series","总排名":114,"销量":391600,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"Ranger","总排名":124,"销量":330618,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"Flex","总排名":139,"销量":253923,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"EcoSport","总排名":168,"销量":175491,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"C-Max","总排名":191,"销量":136106,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"Crown Victoria","总排名":227,"销量":84876,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"Bronco Sport","总排名":397,"销量":5120,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Ford","车型":"GT","总排名":426,"销量":1038,"品牌总销量":25145765},{"国家":"USA","总公司":"Ford Motor","品牌":"Lincoln","车型":"MKZ","总排名":131,"销量":283405,"品牌总销量":1074998},{"国家":"USA","总公司":"Ford Motor","品牌":"Lincoln","车型":"MKX","总排名":136,"销量":262722,"品牌总销量":1074998},{"国家":"USA","总公司":"Ford Motor","品牌":"Lincoln","车型":"MKC","总排名":173,"销量":168560,"品牌总销量":1074998},{"国家":"USA","总公司":"Ford Motor","品牌":"Lincoln","车型":"Navigator","总排名":199,"销量":128336,"品牌总销量":1074998},{"国家":"USA","总公司":"Ford Motor","品牌":"Lincoln","车型":"MKS","总排名":240,"销量":70092,"品牌总销量":1074998},{"国家":"USA","总公司":"Ford Motor","品牌":"Lincoln","车型":"MKT","总排名":264,"销量":48137,"品牌总销量":1074998},{"国家":"USA","总公司":"Ford Motor","品牌":"Lincoln","车型":"Continental","总排名":291,"销量":37874,"品牌总销量":1074998},{"国家":"USA","总公司":"Ford Motor","品牌":"Lincoln","车型":"Aviator","总排名":310,"销量":31404,"品牌总销量":1074998},{"国家":"USA","总公司":"Ford Motor","品牌":"Lincoln","车型":"Nautilus","总排名":330,"销量":22743,"品牌总销量":1074998},{"国家":"USA","总公司":"Ford Motor","品牌":"Lincoln","车型":"Town Car","总排名":331,"销量":21725,"品牌总销量":1074998},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Silverado","总排名":2,"销量":5729238,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Equinox","总排名":13,"销量":2802214,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Malibu","总排名":21,"销量":1979730,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Cruze","总排名":26,"销量":1806874,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Traverse","总排名":34,"销量":1278975,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Impala","总排名":40,"销量":1211126,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Tahoe","总排名":52,"销量":990521,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Camaro","总排名":62,"销量":767956,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Colorado","总排名":63,"销量":762855,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Suburban","总排名":85,"销量":562633,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Sonic","总排名":88,"销量":551323,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Trax","总排名":92,"销量":535107,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Express","总排名":108,"销量":479365,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Spark","总排名":135,"销量":264990,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Corvette","总排名":143,"销量":238857,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Volt","总排名":180,"销量":157123,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Blazer","总排名":183,"销量":152741,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Captiva Sport","总排名":200,"销量":126996,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"HHR","总排名":210,"销量":112437,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Cobalt","总排名":219,"销量":98243,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Avalanche","总排名":232,"销量":81224,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Bolt","总排名":235,"销量":79068,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"TrailBlazer","总排名":299,"销量":34543,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"City Express","总排名":318,"销量":26180,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Caprice","总排名":345,"销量":15799,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"SS","总排名":359,"销量":12860,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"Chevrolet","车型":"Aveo","总排名":440,"销量":69,"品牌总销量":20859047},{"国家":"USA","总公司":"General Motors","品牌":"GMC","车型":"Sierra","总排名":16,"销量":2201026,"品牌总销量":5325865},{"国家":"USA","总公司":"General Motors","品牌":"GMC","车型":"Terrain","总排名":49,"销量":1033222,"品牌总销量":5325865},{"国家":"USA","总公司":"General Motors","品牌":"GMC","车型":"Acadia","总排名":54,"销量":956353,"品牌总销量":5325865},{"国家":"USA","总公司":"General Motors","品牌":"GMC","车型":"Yukon","总排名":64,"销量":755778,"品牌总销量":5325865},{"国家":"USA","总公司":"General Motors","品牌":"GMC","车型":"Canyon","总排名":149,"销量":221458,"品牌总销量":5325865},{"国家":"USA","总公司":"General Motors","品牌":"GMC","车型":"Savana","总排名":179,"销量":157939,"品牌总销量":5325865},{"国家":"USA","总公司":"General Motors","品牌":"GMC","车型":"Envoy","总排名":439,"销量":89,"品牌总销量":5325865},{"国家":"USA","总公司":"General Motors","品牌":"Buick","车型":"Enclave","总排名":78,"销量":595311,"品牌总销量":2196638},{"国家":"USA","总公司":"General Motors","品牌":"Buick","车型":"Encore","总排名":87,"销量":554822,"品牌总销量":2196638},{"国家":"USA","总公司":"General Motors","品牌":"Buick","车型":"LaCrosse","总排名":115,"销量":389769,"品牌总销量":2196638},{"国家":"USA","总公司":"General Motors","品牌":"Buick","车型":"Verano","总排名":160,"销量":197017,"品牌总销量":2196638},{"国家":"USA","总公司":"General Motors","品牌":"Buick","车型":"Regal","总排名":162,"销量":196200,"品牌总销量":2196638},{"国家":"USA","总公司":"General Motors","品牌":"Buick","车型":"Envision","总排名":182,"销量":153559,"品牌总销量":2196638},{"国家":"USA","总公司":"General Motors","品牌":"Buick","车型":"Lucerne","总排名":266,"销量":47797,"品牌总销量":2196638},{"国家":"USA","总公司":"General Motors","品牌":"Buick","车型":"Encore GX","总排名":276,"销量":42240,"品牌总销量":2196638},{"国家":"USA","总公司":"General Motors","品牌":"Buick","车型":"Cascada","总排名":335,"销量":19923,"品牌总销量":2196638},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"SRX","总排名":116,"销量":366983,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"Escalade","总排名":117,"销量":361962,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"CTS","总排名":132,"销量":275672,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"XT5","总排名":140,"销量":253465,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"XTS","总排名":177,"销量":163736,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"ATS","总排名":187,"销量":148804,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"XT4","总排名":250,"销量":62245,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"CT6","总排名":280,"销量":40449,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"XT6","总排名":301,"销量":34170,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"DTS","总排名":312,"销量":30713,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"Escalade ESV","总排名":344,"销量":16033,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"CT5","总排名":350,"销量":14755,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"STS","总排名":381,"销量":7982,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"CT4","总排名":400,"销量":4888,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"Escalade EXT","总排名":406,"销量":3906,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"ELR","总排名":412,"销量":2891,"品牌总销量":1788854},{"国家":"USA","总公司":"General Motors","品牌":"Cadillac","车型":"XLR","总排名":436,"销量":200,"品牌总销量":1788854},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Jeep","车型":"Grand Cherokee","总排名":20,"销量":2051764,"品牌总销量":7649171},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Jeep","车型":"Wrangler","总排名":23,"销量":1943651,"品牌总销量":7649171},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Jeep","车型":"Cherokee","总排名":33,"销量":1360860,"品牌总销量":7649171},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Jeep","车型":"Compass","总排名":58,"销量":885175,"品牌总销量":7649171},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Jeep","车型":"Patriot","总排名":80,"销量":576309,"品牌总销量":7649171},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Jeep","车型":"Renegade","总排名":98,"销量":507781,"品牌总销量":7649171},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Jeep","车型":"Liberty","总排名":159,"销量":197832,"品牌总销量":7649171},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Jeep","车型":"Gladiator","总排名":205,"销量":117579,"品牌总销量":7649171},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Jeep","车型":"Commander","总排名":380,"销量":8220,"品牌总销量":7649171},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Dodge","车型":"Grand Caravan","总排名":35,"销量":1277179,"品牌总销量":6269862},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Dodge","车型":"Ram","总排名":48,"销量":1093451,"品牌总销量":6269862},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Dodge","车型":"Charger","总排名":55,"销量":953614,"品牌总销量":6269862},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Dodge","车型":"Journey","总排名":59,"销量":871553,"品牌总销量":6269862},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Dodge","车型":"Durango","总排名":73,"销量":612777,"品牌总销量":6269862},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Dodge","车型":"Challenger","总排名":77,"销量":598520,"品牌总销量":6269862},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Dodge","车型":"Avenger","总排名":119,"销量":358709,"品牌总销量":6269862},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Dodge","车型":"Dart","总排名":123,"销量":333836,"品牌总销量":6269862},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Dodge","车型":"Caliber","总排名":223,"销量":90352,"品牌总销量":6269862},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Dodge","车型":"Nitro","总排名":263,"销量":50321,"品牌总销量":6269862},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Dodge","车型":"Dakota","总排名":322,"销量":25693,"品牌总销量":6269862},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Dodge","车型":"Viper","总排名":407,"销量":3857,"品牌总销量":6269862},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Ram","车型":"Pickup","总排名":4,"销量":3615396,"品牌总销量":3990594},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Ram","车型":"ProMaster","总排名":118,"销量":360665,"品牌总销量":3990594},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Ram","车型":"Cargo Van","总排名":351,"销量":14533,"品牌总销量":3990594},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Chrysler","车型":"Town & Country","总排名":66,"销量":741853,"品牌总销量":2483580},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Chrysler","车型":200,"总排名":70,"销量":655644,"品牌总销量":2483580},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Chrysler","车型":300,"总排名":101,"销量":505121,"品牌总销量":2483580},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Chrysler","车型":"Pacifica","总排名":107,"销量":480781,"品牌总销量":2483580},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Chrysler","车型":"Sebring","总排名":225,"销量":89413,"品牌总销量":2483580},{"国家":"USA","总公司":"Stellantis N.V.","品牌":"Chrysler","车型":"PT Cruiser","总排名":369,"销量":10768,"品牌总销量":2483580},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Subaru","车型":"Outback","总排名":28,"销量":1609345,"品牌总销量":6587277},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Subaru","车型":"Forester","总排名":29,"销量":1581304,"品牌总销量":6587277},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Subaru","车型":"Impreza","总排名":36,"销量":1234960,"品牌总销量":6587277},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Subaru","车型":"CrossTrek","总排名":75,"销量":601067,"品牌总销量":6587277},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Subaru","车型":"Crosstrek","总排名":76,"销量":601067,"品牌总销量":6587277},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Subaru","车型":"Legacy","总排名":102,"销量":500816,"品牌总销量":6587277},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Subaru","车型":"XV Crosstrek","总排名":151,"销量":221020,"品牌总销量":6587277},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Subaru","车型":"Ascent","总排名":166,"销量":185792,"品牌总销量":6587277},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Subaru","车型":"BRZ","总排名":277,"销量":42238,"品牌总销量":6587277},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Subaru","车型":"Tribeca","总排名":371,"销量":9668,"品牌总销量":6587277},{"国家":"Japan","总公司":"Mazda Motor Corporation","品牌":"Mazda","车型":"CX-5","总排名":50,"销量":1024818,"品牌总销量":3111149},{"国家":"Japan","总公司":"Mazda Motor Corporation","品牌":"Mazda","车型":"3","总排名":53,"销量":966030,"品牌总销量":3111149},{"国家":"Japan","总公司":"Mazda Motor Corporation","品牌":"Mazda","车型":"6","总排名":113,"销量":407476,"品牌总销量":3111149},{"国家":"Japan","总公司":"Mazda Motor Corporation","品牌":"Mazda","车型":"CX-9","总排名":133,"销量":273579,"品牌总销量":3111149},{"国家":"Japan","总公司":"Mazda Motor Corporation","品牌":"Mazda","车型":"5","总排名":229,"销量":83969,"品牌总销量":3111149},{"国家":"Japan","总公司":"Mazda Motor Corporation","品牌":"Mazda","车型":"MX-5 Miata","总排名":230,"销量":83755,"品牌总销量":3111149},{"国家":"Japan","总公司":"Mazda Motor Corporation","品牌":"Mazda","车型":"CX-3","总排名":231,"销量":82782,"品牌总销量":3111149},{"国家":"Japan","总公司":"Mazda Motor Corporation","品牌":"Mazda","车型":"CX-7","总排名":238,"销量":75756,"品牌总销量":3111149},{"国家":"Japan","总公司":"Mazda Motor Corporation","品牌":"Mazda","车型":"2","总排名":245,"销量":65213,"品牌总销量":3111149},{"国家":"Japan","总公司":"Mazda Motor Corporation","品牌":"Mazda","车型":"CX-30","总排名":286,"销量":38963,"品牌总销量":3111149},{"国家":"Japan","总公司":"Mazda Motor Corporation","品牌":"Mazda","车型":"Tribute","总排名":388,"销量":6835,"品牌总销量":3111149},{"国家":"Japan","总公司":"Mazda Motor Corporation","品牌":"Mazda","车型":"RX-8","总排名":422,"销量":1973,"品牌总销量":3111149},{"国家":"Japan","总公司":"Mitsubishi Motors Corporation","品牌":"Mitsubishi","车型":"Outlander","总排名":91,"销量":535391,"品牌总销量":942349},{"国家":"Japan","总公司":"Mitsubishi Motors Corporation","品牌":"Mitsubishi","车型":"Mirage","总排名":181,"销量":156187,"品牌总销量":942349},{"国家":"Japan","总公司":"Mitsubishi Motors Corporation","品牌":"Mitsubishi","车型":"Lancer","总排名":190,"销量":138382,"品牌总销量":942349},{"国家":"Japan","总公司":"Mitsubishi Motors Corporation","品牌":"Mitsubishi","车型":"Eclipse","总排名":259,"销量":53857,"品牌总销量":942349},{"国家":"Japan","总公司":"Mitsubishi Motors Corporation","品牌":"Mitsubishi","车型":"Galant","总排名":279,"销量":41947,"品牌总销量":942349},{"国家":"Japan","总公司":"Mitsubishi Motors Corporation","品牌":"Mitsubishi","车型":"Endeavor","总排名":352,"销量":14477,"品牌总销量":942349},{"国家":"Japan","总公司":"Mitsubishi Motors Corporation","品牌":"Mitsubishi","车型":"i MiEV","总排名":419,"销量":2108,"品牌总销量":942349},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"XC60","总排名":142,"销量":247590,"品牌总销量":854909},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"XC90","总排名":148,"销量":221957,"品牌总销量":854909},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"S60","总排名":188,"销量":144481,"品牌总销量":854909},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"XC40","总排名":260,"销量":53845,"品牌总销量":854909},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"60-Series","总排名":265,"销量":48095,"品牌总销量":854909},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"XC70","总排名":303,"销量":32948,"品牌总销量":854909},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"S80","总排名":333,"销量":21462,"品牌总销量":854909},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"C70","总排名":341,"销量":17762,"品牌总销量":854909},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"90-Series","总排名":342,"销量":17139,"品牌总销量":854909},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"S90","总排名":357,"销量":13846,"品牌总销量":854909},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"V60","总排名":365,"销量":12121,"品牌总销量":854909},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"C30","总排名":366,"销量":11631,"品牌总销量":854909},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"S40","总排名":376,"销量":8658,"品牌总销量":854909},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"V50","总排名":416,"销量":2275,"品牌总销量":854909},{"国家":"Sweden","总公司":"Geely Holding Group","品牌":"Volvo","车型":"40 Series","总排名":425,"销量":1099,"品牌总销量":854909},{"国家":"USA","总公司":"Tesla, Inc.","品牌":"Tesla","车型":"Model 3","总排名":97,"销量":510237,"品牌总销量":781464},{"国家":"USA","总公司":"Tesla, Inc.","品牌":"Tesla","车型":"Model S","总排名":203,"销量":119876,"品牌总销量":781464},{"国家":"USA","总公司":"Tesla, Inc.","品牌":"Tesla","车型":"Model X","总排名":211,"销量":111350,"品牌总销量":781464},{"国家":"USA","总公司":"Tesla, Inc.","品牌":"Tesla","车型":"Model Y","总排名":283,"销量":40001,"品牌总销量":781464},{"国家":"United Kingdom","总公司":"Tata Motors","品牌":"Land Rover","车型":"Range Rover","总排名":94,"销量":522138,"品牌总销量":701193},{"国家":"United Kingdom","总公司":"Tata Motors","品牌":"Land Rover","车型":"Discovery Sport","总排名":243,"销量":68173,"品牌总销量":701193},{"国家":"United Kingdom","总公司":"Tata Motors","品牌":"Land Rover","车型":"LR4","总排名":249,"销量":62251,"品牌总销量":701193},{"国家":"United Kingdom","总公司":"Tata Motors","品牌":"Land Rover","车型":"Discovery","总排名":329,"销量":22981,"品牌总销量":701193},{"国家":"United Kingdom","总公司":"Tata Motors","品牌":"Land Rover","车型":"LR2","总排名":343,"销量":16550,"品牌总销量":701193},{"国家":"United Kingdom","总公司":"Tata Motors","品牌":"Land Rover","车型":"Defender","总排名":373,"销量":9100,"品牌总销量":701193},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Scion","车型":"tC","总排名":208,"销量":113803,"品牌总销量":360958},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Scion","车型":"xB","总排名":215,"销量":106823,"品牌总销量":360958},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Scion","车型":"FR-S","总排名":247,"销量":64320,"品牌总销量":360958},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Scion","车型":"xD","总排名":267,"销量":47615,"品牌总销量":360958},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Scion","车型":"iQ","总排名":346,"销量":15695,"品牌总销量":360958},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Scion","车型":"iA","总排名":382,"销量":7605,"品牌总销量":360958},{"国家":"Japan","总公司":"Toyota Motor","品牌":"Scion","车型":"iM","总排名":398,"销量":5097,"品牌总销量":360958},{"国家":"Italy","总公司":"Stellantis N.V.","品牌":"Maserati","车型":"500","总排名":163,"销量":195600,"品牌总销量":283571},{"国家":"Italy","总公司":"Stellantis N.V.","品牌":"Maserati","车型":"500X","总排名":289,"销量":38026,"品牌总销量":283571},{"国家":"Italy","总公司":"Stellantis N.V.","品牌":"Maserati","车型":"500L","总排名":297,"销量":35120,"品牌总销量":283571},{"国家":"Italy","总公司":"Stellantis N.V.","品牌":"Maserati","车型":"124 Spider","总排名":349,"销量":14825,"品牌总销量":283571},{"国家":"United Kingdom","总公司":"Tata Motors","品牌":"Jaguar","车型":"F-Pace","总排名":242,"销量":68341,"品牌总销量":235926},{"国家":"United Kingdom","总公司":"Tata Motors","品牌":"Jaguar","车型":"XF","总排名":261,"销量":52887,"品牌总销量":235926},{"国家":"United Kingdom","总公司":"Tata Motors","品牌":"Jaguar","车型":"XJ","总排名":296,"销量":35412,"品牌总销量":235926},{"国家":"United Kingdom","总公司":"Tata Motors","品牌":"Jaguar","车型":"XE","总排名":319,"销量":25875,"品牌总销量":235926},{"国家":"United Kingdom","总公司":"Tata Motors","品牌":"Jaguar","车型":"F-Type","总排名":323,"销量":25416,"品牌总销量":235926},{"国家":"United Kingdom","总公司":"Tata Motors","品牌":"Jaguar","车型":"E-Pace","总排名":353,"销量":14463,"品牌总销量":235926},{"国家":"United Kingdom","总公司":"Tata Motors","品牌":"Jaguar","车型":"XK","总排名":377,"销量":8599,"品牌总销量":235926},{"国家":"United Kingdom","总公司":"Tata Motors","品牌":"Jaguar","车型":"I-Pace","总排名":399,"销量":4933,"品牌总销量":235926},{"国家":"Japan","总公司":"Suzuki Motor Corporation","品牌":"Suzuki","车型":"SX4","总排名":285,"销量":39844,"品牌总销量":81915},{"国家":"Japan","总公司":"Suzuki Motor Corporation","品牌":"Suzuki","车型":"Kizashi","总排名":334,"销量":20248,"品牌总销量":81915},{"国家":"Japan","总公司":"Suzuki Motor Corporation","品牌":"Suzuki","车型":"Grand Vitara","总排名":347,"销量":15449,"品牌总销量":81915},{"国家":"Japan","总公司":"Suzuki Motor Corporation","品牌":"Suzuki","车型":"Equator","总排名":393,"销量":5988,"品牌总销量":81915},{"国家":"Japan","总公司":"Suzuki Motor Corporation","品牌":"Suzuki","车型":"XL7","总排名":430,"销量":371,"品牌总销量":81915},{"国家":"Japan","总公司":"Suzuki Motor Corporation","品牌":"Suzuki","车型":"Forenza","总排名":442,"销量":12,"品牌总销量":81915},{"国家":"Japan","总公司":"Suzuki Motor Corporation","品牌":"Suzuki","车型":"Reno","总排名":443,"销量":2,"品牌总销量":81915},{"国家":"Japan","总公司":"Suzuki Motor Corporation","品牌":"Suzuki","车型":"Verona","总排名":444,"销量":1,"品牌总销量":81915},{"国家":"Italy","总公司":"Stellantis N.V.","品牌":"Alfa","车型":"Romeo Giulia","总排名":292,"销量":37367,"品牌总销量":73980},{"国家":"Italy","总公司":"Stellantis N.V.","品牌":"Alfa","车型":"Romeo Stelvio","总排名":300,"销量":34490,"品牌总销量":73980},{"国家":"Italy","总公司":"Stellantis N.V.","品牌":"Alfa","车型":"Romeo 4C","总排名":418,"销量":2123,"品牌总销量":73980},{"国家":"Italy","总公司":"Stellantis N.V.","品牌":"Maserati","车型":"Ghibli","总排名":360,"销量":12631,"品牌总销量":26231},{"国家":"Italy","总公司":"Stellantis N.V.","品牌":"Maserati","车型":"Levante","总排名":383,"销量":7365,"品牌总销量":26231},{"国家":"Italy","总公司":"Stellantis N.V.","品牌":"Maserati","车型":"Quattroporte","总排名":405,"销量":3968,"品牌总销量":26231},{"国家":"Italy","总公司":"Stellantis N.V.","品牌":"Maserati","车型":"GranTurismo","总排名":417,"销量":2267,"品牌总销量":26231},{"国家":"Sweden","总公司":"NEVS","品牌":"Saab","车型":"9-3","总排名":379,"销量":8380,"品牌总销量":10954},{"国家":"Sweden","总公司":"NEVS","品牌":"Saab","车型":"9-5","总排名":415,"销量":2307,"品牌总销量":10954},{"国家":"Sweden","总公司":"NEVS","品牌":"Saab","车型":"9-4X","总排名":434,"销量":267,"品牌总销量":10954}];
+
+
+
+
+const MODEL_RANK_DATA = [
+  {rank:1,make:'Ford',model:'F-1'},
+  {rank:1,make:'Ford',model:'F-100'},
+  {rank:1,make:'Ford',model:'F-100 Ranger'},
+  {rank:1,make:'Ford',model:'F-150'},
+  {rank:1,make:'Ford',model:'F-150 Heritage'},
+  {rank:1,make:'Ford',model:'F-150 Lightning'},
+  {rank:1,make:'Ford',model:'F-2'},
+  {rank:1,make:'Ford',model:'F-200'},
+  {rank:1,make:'Ford',model:'F-250'},
+  {rank:1,make:'Ford',model:'F-250 HD'},
+  {rank:1,make:'Ford',model:'F-250 Super Duty'},
+  {rank:1,make:'Ford',model:'F-3'},
+  {rank:1,make:'Ford',model:'F-350'},
+  {rank:1,make:'Ford',model:'F-350 Super Duty'},
+  {rank:1,make:'Ford',model:'F4'},
+  {rank:1,make:'Ford',model:'F-450 Super Duty'},
+  {rank:1,make:'Ford',model:'F-500'},
+  {rank:1,make:'Ford',model:'F-53 Motorhome Chassis'},
+  {rank:1,make:'Ford',model:'F-550 Super Duty'},
+  {rank:1,make:'Ford',model:'F-59 Commercial Stripped Chassis'},
+  {rank:1,make:'Ford',model:'F-600'},
+  {rank:1,make:'Ford',model:'F-600 LPO'},
+  {rank:1,make:'Ford',model:'F-600 Super Duty'},
+  {rank:1,make:'Ford',model:'F-650'},
+  {rank:1,make:'Ford',model:'F-700'},
+  {rank:1,make:'Ford',model:'F-700 LPO'},
+  {rank:1,make:'Ford',model:'F-7000'},
+  {rank:1,make:'Ford',model:'F-750'},
+  {rank:1,make:'Ford',model:'F-800'},
+  {rank:1,make:'Ford',model:'F-800 LPO'},
+  {rank:1,make:'Ford',model:'F-8000'},
+  {rank:1,make:'Ford',model:'F-Super Duty'},
+  {rank:2,make:'Chevrolet',model:'Silverado 1500'},
+  {rank:2,make:'Chevrolet',model:'Silverado 1500 Classic'},
+  {rank:2,make:'Chevrolet',model:'Silverado 1500 HD'},
+  {rank:2,make:'Chevrolet',model:'Silverado 1500 HD Classic'},
+  {rank:2,make:'Chevrolet',model:'Silverado 1500 LD'},
+  {rank:2,make:'Chevrolet',model:'Silverado 1500 LTD'},
+  {rank:2,make:'Chevrolet',model:'Silverado 2500'},
+  {rank:2,make:'Chevrolet',model:'Silverado 2500 HD'},
+  {rank:2,make:'Chevrolet',model:'Silverado 2500 HD Classic'},
+  {rank:2,make:'Chevrolet',model:'Silverado 3500'},
+  {rank:2,make:'Chevrolet',model:'Silverado 3500 Classic'},
+  {rank:2,make:'Chevrolet',model:'Silverado 3500 HD'},
+  {rank:3,make:'Toyota',model:'Camry'},
+  {rank:4,make:'Ram',model:'1500'},
+  {rank:4,make:'Ram',model:'2500'},
+  {rank:4,make:'Ram',model:'3500'},
+  {rank:4,make:'Ram',model:'1500 Classic'},
+  {rank:5,make:'Honda',model:'CR-V'},
+  {rank:6,make:'Honda',model:'Civic'},
+  {rank:7,make:'Honda',model:'Accord'},
+  {rank:8,make:'Toyota',model:'RAV4'},
+  {rank:9,make:'Ford',model:'Explorer'},
+  {rank:10,make:'Ford',model:'Escape'},
+  {rank:11,make:'Nissan',model:'Altima'},
+  {rank:12,make:'Toyota',model:'Corolla'},
+  {rank:13,make:'Chevrolet',model:'Equinox'},
+  {rank:14,make:'Nissan',model:'Rogue'},
+  {rank:15,make:'Ford',model:'Fusion'},
+  {rank:16,make:'GMC',model:'Sierra 1500'},
+  {rank:16,make:'GMC',model:'Sierra 1500 Classic'},
+  {rank:16,make:'GMC',model:'Sierra 1500 HD'},
+  {rank:16,make:'GMC',model:'Sierra 1500 HD Classic'},
+  {rank:16,make:'GMC',model:'Sierra 1500 Limited'},
+  {rank:16,make:'GMC',model:'Sierra 2500'},
+  {rank:16,make:'GMC',model:'Sierra 2500 HD'},
+  {rank:16,make:'GMC',model:'Sierra 2500 HD Classic'},
+  {rank:16,make:'GMC',model:'Sierra 3500'},
+  {rank:16,make:'GMC',model:'Sierra 3500 Classic'},
+  {rank:16,make:'GMC',model:'Sierra 3500 HD'},
+  {rank:17,make:'Toyota',model:'Prius'},
+  {rank:18,make:'Hyundai',model:'Elantra'},
+  {rank:19,make:'Volkswagen',model:'Jetta'},
+  {rank:20,make:'Jeep',model:'Grand Cherokee'},
+  {rank:21,make:'Chevrolet',model:'Malibu'},
+  {rank:22,make:'Toyota',model:'Tacoma'},
+  {rank:23,make:'Jeep',model:'Wrangler'},
+  {rank:24,make:'Hyundai',model:'Sonata'},
+  {rank:25,make:'Toyota',model:'Highlander'},
+  {rank:26,make:'Chevrolet',model:'Cruze'},
+  {rank:27,make:'Nissan',model:'Sentra'},
+  {rank:28,make:'Subaru',model:'Outback'},
+  {rank:29,make:'Subaru',model:'Forester'},
+  {rank:30,make:'Ford',model:'Focus'},
+  {rank:31,make:'Ford',model:'Edge'},
+  {rank:32,make:'Honda',model:'Pilot'},
+  {rank:33,make:'Jeep',model:'Cherokee'},
+  {rank:34,make:'Chevrolet',model:'Traverse'},
+  {rank:35,make:'Dodge',model:'Grand Caravan'},
+  {rank:36,make:'Subaru',model:'Impreza'},
+  {rank:37,make:'Kia',model:'Soul'},
+  {rank:38,make:'Honda',model:'Odyssey'},
+  {rank:39,make:'Kia',model:'Optima'},
+  {rank:40,make:'Chevrolet',model:'Impala'},
+  {rank:41,make:'Toyota',model:'Tundra'},
+  {rank:42,make:'Kia',model:'Sorento'},
+  {rank:43,make:'Toyota',model:'Sienna'},
+  {rank:44,make:'Hyundai',model:'Santa Fe'},
+  {rank:45,make:'Nissan',model:'Versa'},
+  {rank:46,make:'Lexus',model:'RX300'},
+  {rank:46,make:'Lexus',model:'RX330'},
+  {rank:46,make:'Lexus',model:'RX350'},
+  {rank:46,make:'Lexus',model:'RX350h'},
+  {rank:46,make:'Lexus',model:'RX350L'},
+  {rank:46,make:'Lexus',model:'RX400h'},
+  {rank:46,make:'Lexus',model:'RX450h'},
+  {rank:46,make:'Lexus',model:'RX450h+'},
+  {rank:46,make:'Lexus',model:'RX450hL'},
+  {rank:46,make:'Lexus',model:'RX500h'},
+  {rank:47,make:'Ford',model:'Transit'},
+  {rank:48,make:'Dodge',model:'Ram 1500'},
+  {rank:48,make:'Dodge',model:'Ram 1500 Van'},
+  {rank:48,make:'Dodge',model:'Ram 2500'},
+  {rank:48,make:'Dodge',model:'Ram 2500 Van'},
+  {rank:48,make:'Dodge',model:'Ram 3500'},
+  {rank:48,make:'Dodge',model:'Ram 3500 Van'},
+  {rank:49,make:'GMC',model:'Terrain'},
+  {rank:50,make:'Mazda',model:'CX-5'},
+  {rank:51,make:'Toyota',model:'4Runner'},
+  {rank:52,make:'Chevrolet',model:'Tahoe'},
+  {rank:53,make:'Mazda',model:'3'},
+  {rank:54,make:'GMC',model:'Acadia'},
+  {rank:55,make:'Dodge',model:'Charger'},
+  {rank:56,make:'Kia',model:'Forte'},
+  {rank:57,make:'Ford',model:'Mustang'},
+  {rank:58,make:'Jeep',model:'Compass'},
+  {rank:59,make:'Dodge',model:'Journey'},
+  {rank:60,make:'Ford',model:'Taurus'},
+  {rank:61,make:'BMW',model:'303'},
+  {rank:61,make:'BMW',model:'315'},
+  {rank:61,make:'BMW',model:'325'},
+  {rank:61,make:'BMW',model:'326'},
+  {rank:61,make:'BMW',model:'327'},
+  {rank:61,make:'BMW',model:'328'},
+  {rank:61,make:'BMW',model:'335'},
+  {rank:61,make:'BMW',model:'3.0CS'},
+  {rank:61,make:'BMW',model:'3.0CSi'},
+  {rank:61,make:'BMW',model:'3.0CSL'},
+  {rank:61,make:'BMW',model:'3.0S'},
+  {rank:61,make:'BMW',model:'3.0Si'},
+  {rank:61,make:'BMW',model:'318i'},
+  {rank:61,make:'BMW',model:'318is'},
+  {rank:61,make:'BMW',model:'318ti'},
+  {rank:61,make:'BMW',model:'3200CS'},
+  {rank:61,make:'BMW',model:'320i'},
+  {rank:61,make:'BMW',model:'320i xDrive'},
+  {rank:61,make:'BMW',model:'323Ci'},
+  {rank:61,make:'BMW',model:'323i'},
+  {rank:61,make:'BMW',model:'323is'},
+  {rank:61,make:'BMW',model:'323ti'},
+  {rank:61,make:'BMW',model:'325Ci'},
+  {rank:61,make:'BMW',model:'325e'},
+  {rank:61,make:'BMW',model:'325es'},
+  {rank:61,make:'BMW',model:'325i'},
+  {rank:61,make:'BMW',model:'325is'},
+  {rank:61,make:'BMW',model:'325iX'},
+  {rank:61,make:'BMW',model:'325xi'},
+  {rank:61,make:'BMW',model:'328Ci'},
+  {rank:61,make:'BMW',model:'328d'},
+  {rank:61,make:'BMW',model:'328d xDrive'},
+  {rank:61,make:'BMW',model:'328i'},
+  {rank:61,make:'BMW',model:'328i GT xDrive'},
+  {rank:61,make:'BMW',model:'328i xDrive'},
+  {rank:61,make:'BMW',model:'328is'},
+  {rank:61,make:'BMW',model:'328xi'},
+  {rank:61,make:'BMW',model:'330Ci'},
+  {rank:61,make:'BMW',model:'330e'},
+  {rank:61,make:'BMW',model:'330e xDrive'},
+  {rank:61,make:'BMW',model:'330i'},
+  {rank:61,make:'BMW',model:'330i GT xDrive'},
+  {rank:61,make:'BMW',model:'330i xDrive'},
+  {rank:61,make:'BMW',model:'330xi'},
+  {rank:61,make:'BMW',model:'335d'},
+  {rank:61,make:'BMW',model:'335i'},
+  {rank:61,make:'BMW',model:'335i GT xDrive'},
+  {rank:61,make:'BMW',model:'335i xDrive'},
+  {rank:61,make:'BMW',model:'335is'},
+  {rank:61,make:'BMW',model:'335xi'},
+  {rank:61,make:'BMW',model:'340i'},
+  {rank:61,make:'BMW',model:'340i GT xDrive'},
+  {rank:61,make:'BMW',model:'340i xDrive'},
+  {rank:62,make:'Chevrolet',model:'Camaro'},
+  {rank:63,make:'Chevrolet',model:'Colorado'},
+  {rank:64,make:'GMC',model:'Yukon'},
+  {rank:64,make:'GMC',model:'Yukon XL'},
+  {rank:64,make:'GMC',model:'Yukon XL 1500'},
+  {rank:64,make:'GMC',model:'Yukon XL 2500'},
+  {rank:65,make:'Mercedes-Benz',model:'C180'},
+  {rank:65,make:'Mercedes-Benz',model:'C200'},
+  {rank:65,make:'Mercedes-Benz',model:'C220'},
+  {rank:65,make:'Mercedes-Benz',model:'C230'},
+  {rank:65,make:'Mercedes-Benz',model:'C240'},
+  {rank:65,make:'Mercedes-Benz',model:'C250'},
+  {rank:65,make:'Mercedes-Benz',model:'C280'},
+  {rank:65,make:'Mercedes-Benz',model:'C300'},
+  {rank:65,make:'Mercedes-Benz',model:'C32 AMG'},
+  {rank:65,make:'Mercedes-Benz',model:'C320'},
+  {rank:65,make:'Mercedes-Benz',model:'C350'},
+  {rank:65,make:'Mercedes-Benz',model:'C350e'},
+  {rank:65,make:'Mercedes-Benz',model:'C36 AMG'},
+  {rank:65,make:'Mercedes-Benz',model:'C400'},
+  {rank:65,make:'Mercedes-Benz',model:'C43 AMG'},
+  {rank:65,make:'Mercedes-Benz',model:'C450 AMG'},
+  {rank:65,make:'Mercedes-Benz',model:'C55 AMG'},
+  {rank:65,make:'Mercedes-Benz',model:'C63 AMG'},
+  {rank:65,make:'Mercedes-Benz',model:'C63 AMG S'},
+  {rank:65,make:'Mercedes-Benz',model:'C63 AMG S E Performance'},
+  {rank:66,make:'Chrysler',model:'Town &amp; Country'},
+  {rank:67,make:'Nissan',model:'Frontier'},
+  {rank:68,make:'Nissan',model:'Murano'},
+  {rank:69,make:'Nissan',model:'Pathfinder'},
+  {rank:70,make:'Chrysler',model:'200'},
+  {rank:71,make:'Volkswagen',model:'Passat'},
+  {rank:72,make:'Kia',model:'Sportage'},
+  {rank:73,make:'Dodge',model:'Durango'},
+  {rank:74,make:'Volkswagen',model:'Golf'},
+  {rank:75,make:'Subaru',model:'Crosstrek'},
+  {rank:77,make:'Dodge',model:'Challenger'},
+  {rank:78,make:'Buick',model:'Enclave'},
+  {rank:79,make:'Acura',model:'MDX'},
+  {rank:80,make:'Jeep',model:'Patriot'},
+  {rank:81,make:'Volkswagen',model:'Tiguan'},
+  {rank:82,make:'Ford',model:'Expedition'},
+  {rank:83,make:'Mercedes-Benz',model:'E200'},
+  {rank:83,make:'Mercedes-Benz',model:'E250'},
+  {rank:83,make:'Mercedes-Benz',model:'E280'},
+  {rank:83,make:'Mercedes-Benz',model:'E300'},
+  {rank:83,make:'Mercedes-Benz',model:'E320'},
+  {rank:83,make:'Mercedes-Benz',model:'E350'},
+  {rank:83,make:'Mercedes-Benz',model:'E350e'},
+  {rank:83,make:'Mercedes-Benz',model:'E400'},
+  {rank:83,make:'Mercedes-Benz',model:'E420'},
+  {rank:83,make:'Mercedes-Benz',model:'E43 AMG'},
+  {rank:83,make:'Mercedes-Benz',model:'E430'},
+  {rank:83,make:'Mercedes-Benz',model:'E450'},
+  {rank:83,make:'Mercedes-Benz',model:'E500'},
+  {rank:83,make:'Mercedes-Benz',model:'E53 AMG'},
+  {rank:83,make:'Mercedes-Benz',model:'E55 AMG'},
+  {rank:83,make:'Mercedes-Benz',model:'E550'},
+  {rank:83,make:'Mercedes-Benz',model:'E63 AMG'},
+  {rank:83,make:'Mercedes-Benz',model:'E63 AMG S'},
+  {rank:84,make:'Hyundai',model:'Accent'},
+  {rank:85,make:'Chevrolet',model:'Suburban'},
+  {rank:85,make:'Chevrolet',model:'Suburban 1500'},
+  {rank:85,make:'Chevrolet',model:'Suburban 2500'},
+  {rank:86,make:'Ford',model:'Fiesta'},
+  {rank:87,make:'Buick',model:'Encore'},
+  {rank:88,make:'Chevrolet',model:'Sonic'},
+  {rank:89,make:'Nissan',model:'Maxima'},
+  {rank:90,make:'Honda',model:'Fit'},
+  {rank:91,make:'Mitsubishi',model:'Outlander'},
+  {rank:91,make:'Mitsubishi',model:'Outlander PHEV'},
+  {rank:91,make:'Mitsubishi',model:'Outlander Sport'},
+  {rank:92,make:'Chevrolet',model:'Trax'},
+  {rank:93,make:'Audi',model:'A4'},
+  {rank:93,make:'Audi',model:'A4 allroad'},
+  {rank:93,make:'Audi',model:'A4 Quattro'},
+  {rank:94,make:'Land Rover',model:'Range Rover'},
+  {rank:95,make:'Lexus',model:'ES250'},
+  {rank:95,make:'Lexus',model:'ES300'},
+  {rank:95,make:'Lexus',model:'ES300h'},
+  {rank:95,make:'Lexus',model:'ES330'},
+  {rank:95,make:'Lexus',model:'ES350'},
+  {rank:96,make:'BMW',model:'X5'},
+  {rank:97,make:'Tesla',model:'3'},
+  {rank:98,make:'Jeep',model:'Renegade'},
+  {rank:99,make:'Audi',model:'Q5'},
+  {rank:100,make:'Toyota',model:'Matrix'},
+  {rank:101,make:'Chrysler',model:'300'},
+  {rank:102,make:'Subaru',model:'Legacy'},
+  {rank:103,make:'Hyundai',model:'Tucson'},
+  {rank:104,make:'Honda',model:'HR-V'},
+  {rank:105,make:'Acura',model:'RDX'},
+  {rank:106,make:'BMW',model:'501'},
+  {rank:106,make:'BMW',model:'502'},
+  {rank:106,make:'BMW',model:'503'},
+  {rank:106,make:'BMW',model:'507'},
+  {rank:106,make:'BMW',model:'501A'},
+  {rank:106,make:'BMW',model:'501B'},
+  {rank:106,make:'BMW',model:'520i'},
+  {rank:106,make:'BMW',model:'524td'},
+  {rank:106,make:'BMW',model:'525i'},
+  {rank:106,make:'BMW',model:'525iT'},
+  {rank:106,make:'BMW',model:'525xi'},
+  {rank:106,make:'BMW',model:'528e'},
+  {rank:106,make:'BMW',model:'528i'},
+  {rank:106,make:'BMW',model:'528i xDrive'},
+  {rank:106,make:'BMW',model:'528xi'},
+  {rank:106,make:'BMW',model:'530e'},
+  {rank:106,make:'BMW',model:'530e xDrive'},
+  {rank:106,make:'BMW',model:'530e xDrive iPerformance'},
+  {rank:106,make:'BMW',model:'530i'},
+  {rank:106,make:'BMW',model:'530i xDrive'},
+  {rank:106,make:'BMW',model:'530xi'},
+  {rank:106,make:'BMW',model:'533i'},
+  {rank:106,make:'BMW',model:'535d'},
+  {rank:106,make:'BMW',model:'535d xDrive'},
+  {rank:106,make:'BMW',model:'535i'},
+  {rank:106,make:'BMW',model:'535i GT'},
+  {rank:106,make:'BMW',model:'535i GT xDrive'},
+  {rank:106,make:'BMW',model:'535i xDrive'},
+  {rank:106,make:'BMW',model:'535is'},
+  {rank:106,make:'BMW',model:'535xi'},
+  {rank:106,make:'BMW',model:'540d xDrive'},
+  {rank:106,make:'BMW',model:'540i'},
+  {rank:106,make:'BMW',model:'540i xDrive'},
+  {rank:106,make:'BMW',model:'545i'},
+  {rank:106,make:'BMW',model:'550e xDrive'},
+  {rank:106,make:'BMW',model:'550i'},
+  {rank:106,make:'BMW',model:'550i GT'},
+  {rank:106,make:'BMW',model:'550i GT xDrive'},
+  {rank:106,make:'BMW',model:'550i xDrive'},
+  {rank:107,make:'Chrysler',model:'Pacifica'},
+  {rank:108,make:'Chevrolet',model:'Express 1500'},
+  {rank:108,make:'Chevrolet',model:'Express 2500'},
+  {rank:108,make:'Chevrolet',model:'Express 3500'},
+  {rank:108,make:'Chevrolet',model:'Express 4500'},
+  {rank:109,make:'Mini',model:'Cooper'},
+  {rank:110,make:'Toyota',model:'Avalon'},
+  {rank:111,make:'BMW',model:'X3'},
+  {rank:113,make:'Mazda',model:'6'},
+  {rank:114,make:'Ford',model:'E-100 Econoline'},
+  {rank:114,make:'Ford',model:'E-100 Econoline Club Wagon'},
+  {rank:114,make:'Ford',model:'E-150'},
+  {rank:114,make:'Ford',model:'E-150 Club Wagon'},
+  {rank:114,make:'Ford',model:'E-150 Econoline'},
+  {rank:114,make:'Ford',model:'E-150 Econoline Club Wagon'},
+  {rank:114,make:'Ford',model:'E-200 Econoline'},
+  {rank:114,make:'Ford',model:'E-250'},
+  {rank:114,make:'Ford',model:'E-250 Econoline'},
+  {rank:114,make:'Ford',model:'E-250 Econoline Club Wagon'},
+  {rank:114,make:'Ford',model:'E-300 Econoline'},
+  {rank:114,make:'Ford',model:'E-350 Club Wagon'},
+  {rank:114,make:'Ford',model:'E-350 Econoline'},
+  {rank:114,make:'Ford',model:'E-350 Econoline Club Wagon'},
+  {rank:114,make:'Ford',model:'E-350 Super Duty'},
+  {rank:114,make:'Ford',model:'E-450 Econoline Super Duty'},
+  {rank:114,make:'Ford',model:'E-450 Super Duty'},
+  {rank:114,make:'Ford',model:'E-550 Econoline Super Duty'},
+  {rank:114,make:'Ford',model:'E-550 Super Duty'},
+  {rank:114,make:'Ford',model:'Econoline Van'},
+  {rank:114,make:'Ford',model:'Econoline Wagon'},
+  {rank:115,make:'Buick',model:'LaCrosse'},
+  {rank:116,make:'Cadillac',model:'SRX'},
+  {rank:117,make:'Cadillac',model:'Escalade'},
+  {rank:118,make:'Ram',model:'ProMaster 1500'},
+  {rank:118,make:'Ram',model:'ProMaster 2500'},
+  {rank:118,make:'Ram',model:'ProMaster 3500'},
+  {rank:118,make:'Ram',model:'ProMaster City'},
+  {rank:118,make:'Ram',model:'ProMaster EV'},
+  {rank:118,make:'Ram',model:'ProMaster Rapid'},
+  {rank:119,make:'Dodge',model:'Avenger'},
+  {rank:120,make:'Lexus',model:'IS F'},
+  {rank:120,make:'Lexus',model:'IS200t'},
+  {rank:120,make:'Lexus',model:'IS250'},
+  {rank:120,make:'Lexus',model:'IS300'},
+  {rank:120,make:'Lexus',model:'IS350'},
+  {rank:120,make:'Lexus',model:'IS500'},
+  {rank:121,make:'Volkswagen',model:'Beetle'},
+  {rank:122,make:'Lexus',model:'NX200t'},
+  {rank:122,make:'Lexus',model:'NX250'},
+  {rank:122,make:'Lexus',model:'NX300'},
+  {rank:122,make:'Lexus',model:'NX300h'},
+  {rank:122,make:'Lexus',model:'NX350'},
+  {rank:122,make:'Lexus',model:'NX350h'},
+  {rank:122,make:'Lexus',model:'NX450h+'},
+  {rank:123,make:'Dodge',model:'Dart'},
+  {rank:124,make:'Ford',model:'Ranger'},
+  {rank:125,make:'Kia',model:'Rio'},
+  {rank:125,make:'Kia',model:'Rio5'},
+  {rank:126,make:'BMW',model:'420i'},
+  {rank:126,make:'BMW',model:'420i Gran Coupe'},
+  {rank:126,make:'BMW',model:'428i'},
+  {rank:126,make:'BMW',model:'428i Gran Coupe'},
+  {rank:126,make:'BMW',model:'428i xDrive'},
+  {rank:126,make:'BMW',model:'428i xDrive Gran Coupe'},
+  {rank:126,make:'BMW',model:'430i'},
+  {rank:126,make:'BMW',model:'430i Gran Coupe'},
+  {rank:126,make:'BMW',model:'430i xDrive'},
+  {rank:126,make:'BMW',model:'430i xDrive Gran Coupe'},
+  {rank:126,make:'BMW',model:'435i'},
+  {rank:126,make:'BMW',model:'435i Gran Coupe'},
+  {rank:126,make:'BMW',model:'435i xDrive'},
+  {rank:126,make:'BMW',model:'435i xDrive Gran Coupe'},
+  {rank:126,make:'BMW',model:'440i'},
+  {rank:126,make:'BMW',model:'440i Gran Coupe'},
+  {rank:126,make:'BMW',model:'440i xDrive'},
+  {rank:126,make:'BMW',model:'440i xDrive Gran Coupe'},
+  {rank:127,make:'Toyota',model:'Yaris'},
+  {rank:128,make:'Infiniti',model:'QX60'},
+  {rank:129,make:'Nissan',model:'Titan'},
+  {rank:130,make:'Mercedes-Benz',model:'GLK250'},
+  {rank:130,make:'Mercedes-Benz',model:'GLK280'},
+  {rank:130,make:'Mercedes-Benz',model:'GLK300'},
+  {rank:130,make:'Mercedes-Benz',model:'GLK350'},
+  {rank:131,make:'Lincoln',model:'MKZ'},
+  {rank:132,make:'Cadillac',model:'CTS'},
+  {rank:133,make:'Mazda',model:'CX-9'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE300d'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE350'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE350d'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE400'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE400e'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE43 AMG'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE450'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE450 AMG'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE450 SUV'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE450e'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE500'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE500e'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE53 AMG'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE53 AMG SUV'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE550'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE550e'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE580'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE63 AMG'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE63 AMG S'},
+  {rank:134,make:'Mercedes-Benz',model:'GLE63 AMG S SUV'},
+  {rank:135,make:'Chevrolet',model:'Spark'},
+  {rank:136,make:'Lincoln',model:'MKX'},
+  {rank:137,make:'Infiniti',model:'Q50'},
+  {rank:138,make:'Volkswagen',model:'Atlas'},
+  {rank:139,make:'Ford',model:'Flex'},
+  {rank:140,make:'Cadillac',model:'XT5'},
+  {rank:141,make:'Audi',model:'Q7'},
+  {rank:142,make:'Volvo',model:'XC60'},
+  {rank:143,make:'Chevrolet',model:'Corvette'},
+  {rank:144,make:'Kia',model:'Sedona'},
+  {rank:145,make:'Toyota',model:'Venza'},
+  {rank:146,make:'Nissan',model:'Armada'},
+  {rank:147,make:'Honda',model:'Ridgeline'},
+  {rank:148,make:'Volvo',model:'XC90'},
+  {rank:149,make:'GMC',model:'Canyon'},
+  {rank:150,make:'Mercedes-Benz',model:'ML250'},
+  {rank:150,make:'Mercedes-Benz',model:'ML320'},
+  {rank:150,make:'Mercedes-Benz',model:'ML350'},
+  {rank:150,make:'Mercedes-Benz',model:'ML400'},
+  {rank:150,make:'Mercedes-Benz',model:'ML430'},
+  {rank:150,make:'Mercedes-Benz',model:'ML450'},
+  {rank:150,make:'Mercedes-Benz',model:'ML500'},
+  {rank:150,make:'Mercedes-Benz',model:'ML55 AMG'},
+  {rank:150,make:'Mercedes-Benz',model:'ML550'},
+  {rank:150,make:'Mercedes-Benz',model:'ML63 AMG'},
+  {rank:151,make:'Subaru',model:'XV Crosstrek'},
+  {rank:152,make:'Acura',model:'TLX'},
+  {rank:153,make:'Hyundai',model:'Genesis'},
+  {rank:153,make:'Hyundai',model:'Genesis Coupe'},
+  {rank:154,make:'Nissan',model:'Juke'},
+  {rank:155,make:'Infiniti',model:'G20'},
+  {rank:155,make:'Infiniti',model:'G25'},
+  {rank:155,make:'Infiniti',model:'G35'},
+  {rank:155,make:'Infiniti',model:'G37'},
+  {rank:156,make:'Mercedes-Benz',model:'Sprinter 2500'},
+  {rank:156,make:'Mercedes-Benz',model:'Sprinter 3500'},
+  {rank:157,make:'Hyundai',model:'Veloster'},
+  {rank:158,make:'Mercedes-Benz',model:'GL320'},
+  {rank:158,make:'Mercedes-Benz',model:'GL350'},
+  {rank:158,make:'Mercedes-Benz',model:'GL450'},
+  {rank:158,make:'Mercedes-Benz',model:'GL500'},
+  {rank:158,make:'Mercedes-Benz',model:'GL550'},
+  {rank:158,make:'Mercedes-Benz',model:'GL63 AMG'},
+  {rank:159,make:'Jeep',model:'Liberty'},
+  {rank:160,make:'Buick',model:'Verano'},
+  {rank:161,make:'Hyundai',model:'Kona'},
+  {rank:162,make:'Buick',model:'Regal'},
+  {rank:163,make:'Fiat',model:'500'},
+  {rank:164,make:'Audi',model:'A5'},
+  {rank:164,make:'Audi',model:'A5 Quattro'},
+  {rank:164,make:'Audi',model:'A5 Sportback'},
+  {rank:165,make:'BMW',model:'X1'},
+  {rank:166,make:'Subaru',model:'Ascent'},
+  {rank:167,make:'Audi',model:'A6'},
+  {rank:167,make:'Audi',model:'A6 allroad'},
+  {rank:167,make:'Audi',model:'A6 Quattro'},
+  {rank:167,make:'Audi',model:'A6 Sportback e-tron'},
+  {rank:167,make:'Audi',model:'A6 Sportback e-tron Quattro'},
+  {rank:168,make:'Ford',model:'EcoSport'},
+  {rank:169,make:'Mercedes-Benz',model:'GLC200'},
+  {rank:169,make:'Mercedes-Benz',model:'GLC250'},
+  {rank:169,make:'Mercedes-Benz',model:'GLC300'},
+  {rank:169,make:'Mercedes-Benz',model:'GLC300e'},
+  {rank:169,make:'Mercedes-Benz',model:'GLC350e'},
+  {rank:169,make:'Mercedes-Benz',model:'GLC43 AMG'},
+  {rank:169,make:'Mercedes-Benz',model:'GLC63 AMG'},
+  {rank:169,make:'Mercedes-Benz',model:'GLC63 AMG S'},
+  {rank:169,make:'Mercedes-Benz',model:'GLC63 AMG S E Performance'},
+  {rank:170,make:'Audi',model:'A3'},
+  {rank:170,make:'Audi',model:'A3 e-tron'},
+  {rank:170,make:'Audi',model:'A3 Quattro'},
+  {rank:170,make:'Audi',model:'A3 Sportback e-tron'},
+  {rank:171,make:'Mercedes-Benz',model:'Maybach S550'},
+  {rank:171,make:'Mercedes-Benz',model:'Maybach S560'},
+  {rank:171,make:'Mercedes-Benz',model:'Maybach S580'},
+  {rank:171,make:'Mercedes-Benz',model:'Maybach S600'},
+  {rank:171,make:'Mercedes-Benz',model:'Maybach S650'},
+  {rank:171,make:'Mercedes-Benz',model:'Maybach S680'},
+  {rank:171,make:'Mercedes-Benz',model:'S320'},
+  {rank:171,make:'Mercedes-Benz',model:'S350'},
+  {rank:171,make:'Mercedes-Benz',model:'S400'},
+  {rank:171,make:'Mercedes-Benz',model:'S400L'},
+  {rank:171,make:'Mercedes-Benz',model:'S420'},
+  {rank:171,make:'Mercedes-Benz',model:'S430'},
+  {rank:171,make:'Mercedes-Benz',model:'S450'},
+  {rank:171,make:'Mercedes-Benz',model:'S450L'},
+  {rank:171,make:'Mercedes-Benz',model:'S500'},
+  {rank:171,make:'Mercedes-Benz',model:'S500L'},
+  {rank:171,make:'Mercedes-Benz',model:'S55 AMG'},
+  {rank:171,make:'Mercedes-Benz',model:'S550'},
+  {rank:171,make:'Mercedes-Benz',model:'S550e'},
+  {rank:171,make:'Mercedes-Benz',model:'S560'},
+  {rank:171,make:'Mercedes-Benz',model:'S560e'},
+  {rank:171,make:'Mercedes-Benz',model:'S560L'},
+  {rank:171,make:'Mercedes-Benz',model:'S580'},
+  {rank:171,make:'Mercedes-Benz',model:'S580e'},
+  {rank:171,make:'Mercedes-Benz',model:'S600'},
+  {rank:171,make:'Mercedes-Benz',model:'S600L'},
+  {rank:171,make:'Mercedes-Benz',model:'S63 AMG'},
+  {rank:171,make:'Mercedes-Benz',model:'S63 AMG E Performance'},
+  {rank:171,make:'Mercedes-Benz',model:'S63L AMG'},
+  {rank:171,make:'Mercedes-Benz',model:'S65 AMG'},
+  {rank:171,make:'Mercedes-Benz',model:'S65L AMG'},
+  {rank:172,make:'Mercedes-Benz',model:'CLA180'},
+  {rank:172,make:'Mercedes-Benz',model:'CLA200'},
+  {rank:172,make:'Mercedes-Benz',model:'CLA250'},
+  {rank:172,make:'Mercedes-Benz',model:'CLA250+'},
+  {rank:172,make:'Mercedes-Benz',model:'CLA35 AMG'},
+  {rank:172,make:'Mercedes-Benz',model:'CLA350'},
+  {rank:172,make:'Mercedes-Benz',model:'CLA45 AMG'},
+  {rank:172,make:'Mercedes-Benz',model:'CLA45 AMG S'},
+  {rank:173,make:'Lincoln',model:'MKC'},
+  {rank:174,make:'Mini',model:'Cooper Countryman'},
+  {rank:175,make:'Toyota',model:'C-HR'},
+  {rank:176,make:'Porsche',model:'Cayenne'},
+  {rank:177,make:'Cadillac',model:'XTS'},
+  {rank:178,make:'Acura',model:'TSX'},
+  {rank:179,make:'GMC',model:'Savana 1500'},
+  {rank:179,make:'GMC',model:'Savana 2500'},
+  {rank:179,make:'GMC',model:'Savana 3500'},
+  {rank:179,make:'GMC',model:'Savana 4500'},
+  {rank:180,make:'Chevrolet',model:'Volt'},
+  {rank:181,make:'Mitsubishi',model:'Mirage'},
+  {rank:182,make:'Buick',model:'Envision'},
+  {rank:183,make:'Chevrolet',model:'Blazer'},
+  {rank:184,make:'Mercedes-Benz',model:'GLA180'},
+  {rank:184,make:'Mercedes-Benz',model:'GLA200'},
+  {rank:184,make:'Mercedes-Benz',model:'GLA250'},
+  {rank:184,make:'Mercedes-Benz',model:'GLA35 AMG'},
+  {rank:184,make:'Mercedes-Benz',model:'GLA45 AMG'},
+  {rank:185,make:'Nissan',model:'LEAF'},
+  {rank:187,make:'Cadillac',model:'ATS'},
+  {rank:188,make:'Volvo',model:'S60'},
+  {rank:189,make:'Nissan',model:'Kicks'},
+  {rank:190,make:'Mitsubishi',model:'Lancer'},
+  {rank:191,make:'Ford',model:'C-Max'},
+  {rank:192,make:'Acura',model:'ILX'},
+  {rank:193,make:'Kia',model:'Telluride'},
+  {rank:194,make:'Acura',model:'TL'},
+  {rank:195,make:'Lexus',model:'GX460'},
+  {rank:195,make:'Lexus',model:'GX470'},
+  {rank:195,make:'Lexus',model:'GX550'},
+  {rank:196,make:'Lexus',model:'GS F'},
+  {rank:196,make:'Lexus',model:'GS200t'},
+  {rank:196,make:'Lexus',model:'GS300'},
+  {rank:196,make:'Lexus',model:'GS350'},
+  {rank:196,make:'Lexus',model:'GS400'},
+  {rank:196,make:'Lexus',model:'GS430'},
+  {rank:196,make:'Lexus',model:'GS450h'},
+  {rank:196,make:'Lexus',model:'GS460'},
+  {rank:197,make:'Infiniti',model:'QX80'},
+  {rank:198,make:'Toyota',model:'Sequoia'},
+  {rank:199,make:'Lincoln',model:'Navigator'},
+  {rank:200,make:'Chevrolet',model:'Captiva Sport'},
+  {rank:201,make:'Porsche',model:'Macan'},
+  {rank:202,make:'Nissan',model:'NV200'},
+  {rank:203,make:'Tesla',model:'Model S'},
+  {rank:204,make:'Nissan',model:'NV1500'},
+  {rank:204,make:'Nissan',model:'NV200'},
+  {rank:204,make:'Nissan',model:'NV2500'},
+  {rank:204,make:'Nissan',model:'NV3500'},
+  {rank:205,make:'Jeep',model:'Gladiator'},
+  {rank:206,make:'Audi',model:'Q3'},
+  {rank:207,make:'Volkswagen',model:'CC'},
+  {rank:208,make:'Scion',model:'tC'},
+  {rank:209,make:'Honda',model:'Crosstour'},
+  {rank:210,make:'Chevrolet',model:'HHR'},
+  {rank:211,make:'Tesla',model:'Model X'},
+  {rank:212,make:'Hyundai',model:'Palisade'},
+  {rank:213,make:'BMW',model:'733i'},
+  {rank:213,make:'BMW',model:'735i'},
+  {rank:213,make:'BMW',model:'735iL'},
+  {rank:213,make:'BMW',model:'740e xDrive'},
+  {rank:213,make:'BMW',model:'740i'},
+  {rank:213,make:'BMW',model:'740i xDrive'},
+  {rank:213,make:'BMW',model:'740iL'},
+  {rank:213,make:'BMW',model:'740Ld xDrive'},
+  {rank:213,make:'BMW',model:'740Le xDrive'},
+  {rank:213,make:'BMW',model:'740Li'},
+  {rank:213,make:'BMW',model:'740Li xDrive'},
+  {rank:213,make:'BMW',model:'745e'},
+  {rank:213,make:'BMW',model:'745e xDrive'},
+  {rank:213,make:'BMW',model:'745i'},
+  {rank:213,make:'BMW',model:'745Le xDrive'},
+  {rank:213,make:'BMW',model:'745Li'},
+  {rank:213,make:'BMW',model:'750e xDrive'},
+  {rank:213,make:'BMW',model:'750i'},
+  {rank:213,make:'BMW',model:'750i xDrive'},
+  {rank:213,make:'BMW',model:'750iL'},
+  {rank:213,make:'BMW',model:'750Li'},
+  {rank:213,make:'BMW',model:'750Li xDrive'},
+  {rank:213,make:'BMW',model:'760i'},
+  {rank:213,make:'BMW',model:'760i xDrive'},
+  {rank:213,make:'BMW',model:'760Li'},
+  {rank:214,make:'Infiniti',model:'QX50'},
+  {rank:215,make:'Scion',model:'xB'},
+  {rank:216,make:'Honda',model:'Insight'},
+  {rank:217,make:'Nissan',model:'Xterra'},
+  {rank:219,make:'Chevrolet',model:'Cobalt'},
+  {rank:220,make:'Kia',model:'Niro'},
+  {rank:221,make:'Porsche',model:'911'},
+  {rank:222,make:'Infiniti',model:'Q60'},
+  {rank:223,make:'Dodge',model:'Caliber'},
+  {rank:225,make:'Chrysler',model:'Sebring'},
+  {rank:226,make:'Mercedes-Benz',model:'GLS350d'},
+  {rank:226,make:'Mercedes-Benz',model:'GLS450'},
+  {rank:226,make:'Mercedes-Benz',model:'GLS500'},
+  {rank:226,make:'Mercedes-Benz',model:'GLS550'},
+  {rank:226,make:'Mercedes-Benz',model:'GLS580'},
+  {rank:226,make:'Mercedes-Benz',model:'GLS63 AMG'},
+  {rank:226,make:'Mercedes-Benz',model:'Maybach GLS600'},
+  {rank:227,make:'Ford',model:'Crown Victoria'},
+  {rank:228,make:'Lexus',model:'LS400'},
+  {rank:228,make:'Lexus',model:'LS430'},
+  {rank:228,make:'Lexus',model:'LS460'},
+  {rank:228,make:'Lexus',model:'LS500'},
+  {rank:228,make:'Lexus',model:'LS500h'},
+  {rank:228,make:'Lexus',model:'LS600h'},
+  {rank:229,make:'Mazda',model:'5'},
+  {rank:230,make:'Mazda',model:'MX-5 Miata'},
+  {rank:231,make:'Mazda',model:'CX-3'},
+  {rank:232,make:'Chevrolet',model:'Avalanche'},
+  {rank:232,make:'Chevrolet',model:'Avalanche 1500'},
+  {rank:232,make:'Chevrolet',model:'Avalanche 2500'},
+  {rank:233,make:'Nissan',model:'Quest'},
+  {rank:234,make:'Lexus',model:'CT200h'},
+  {rank:235,make:'Chevrolet',model:'Bolt'},
+  {rank:236,make:'BMW',model:'218i Gran Coupe'},
+  {rank:236,make:'BMW',model:'220i'},
+  {rank:236,make:'BMW',model:'220i Gran Coupe'},
+  {rank:236,make:'BMW',model:'228 xDrive Gran Coupe'},
+  {rank:236,make:'BMW',model:'228i'},
+  {rank:236,make:'BMW',model:'228i Gran Coupe'},
+  {rank:236,make:'BMW',model:'228i xDrive'},
+  {rank:236,make:'BMW',model:'228i xDrive Gran Coupe'},
+  {rank:236,make:'BMW',model:'230i'},
+  {rank:236,make:'BMW',model:'230i xDrive'},
+  {rank:236,make:'BMW',model:'235i'},
+  {rank:237,make:'Honda',model:'Passport'},
+  {rank:238,make:'Mazda',model:'CX-7'},
+  {rank:239,make:'Toyota',model:'FJ Cruiser'},
+  {rank:240,make:'Lincoln',model:'MKS'},
+  {rank:241,make:'BMW',model:'X6'},
+  {rank:242,make:'Jaguar',model:'F-Pace'},
+  {rank:243,make:'Land Rover',model:'Discovery Sport'},
+  {rank:244,make:'Porsche',model:'Panamera'},
+  {rank:245,make:'Mazda',model:'2'},
+  {rank:246,make:'Nissan',model:'370Z'},
+  {rank:247,make:'Scion',model:'FR-S'},
+  {rank:248,make:'Mercedes-Benz',model:'CLS350'},
+  {rank:248,make:'Mercedes-Benz',model:'CLS400'},
+  {rank:248,make:'Mercedes-Benz',model:'CLS450'},
+  {rank:248,make:'Mercedes-Benz',model:'CLS500'},
+  {rank:248,make:'Mercedes-Benz',model:'CLS53 AMG'},
+  {rank:248,make:'Mercedes-Benz',model:'CLS53 AMG S'},
+  {rank:248,make:'Mercedes-Benz',model:'CLS55 AMG'},
+  {rank:248,make:'Mercedes-Benz',model:'CLS550'},
+  {rank:248,make:'Mercedes-Benz',model:'CLS63 AMG'},
+  {rank:248,make:'Mercedes-Benz',model:'CLS63 AMG S'},
+  {rank:249,make:'Land Rover',model:'LR4'},
+  {rank:250,make:'Cadillac',model:'XT4'},
+  {rank:251,make:'Audi',model:'A7'},
+  {rank:251,make:'Audi',model:'A7 Quattro'},
+  {rank:251,make:'Audi',model:'A7 Sportback'},
+  {rank:252,make:'Infiniti',model:'G37'},
+  {rank:253,make:'Hyundai',model:'Ioniq'},
+  {rank:254,make:'Smart',model:'Fortwo'},
+  {rank:256,make:'Nissan',model:'Cube'},
+  {rank:257,make:'BMW',model:'630CSi'},
+  {rank:257,make:'BMW',model:'633CSi'},
+  {rank:257,make:'BMW',model:'635CSi'},
+  {rank:257,make:'BMW',model:'640i'},
+  {rank:257,make:'BMW',model:'640i Gran Coupe'},
+  {rank:257,make:'BMW',model:'640i xDrive'},
+  {rank:257,make:'BMW',model:'640i xDrive Gran Coupe'},
+  {rank:257,make:'BMW',model:'640i xDrive Gran Turismo'},
+  {rank:257,make:'BMW',model:'645Ci'},
+  {rank:257,make:'BMW',model:'650Ci'},
+  {rank:257,make:'BMW',model:'650i'},
+  {rank:257,make:'BMW',model:'650i Gran Coupe'},
+  {rank:257,make:'BMW',model:'650i xDrive'},
+  {rank:257,make:'BMW',model:'650i xDrive Gran Coupe'},
+  {rank:258,make:'Volkswagen',model:'Touareg'},
+  {rank:259,make:'Mitsubishi',model:'Eclipse'},
+  {rank:260,make:'Volvo',model:'XC40'},
+  {rank:261,make:'Jaguar',model:'XF'},
+  {rank:261,make:'Jaguar',model:'XFR'},
+  {rank:261,make:'Jaguar',model:'XFR-S'},
+  {rank:262,make:'Mercedes-Benz',model:'Metris'},
+  {rank:263,make:'Dodge',model:'Nitro'},
+  {rank:264,make:'Lincoln',model:'MKT'},
+  {rank:265,make:'Volvo',model:'S60 Cross Country'},
+  {rank:265,make:'Volvo',model:'V60 Cross Country'},
+  {rank:266,make:'Buick',model:'Lucerne'},
+  {rank:267,make:'Scion',model:'xD'},
+  {rank:268,make:'Lexus',model:'RC F'},
+  {rank:268,make:'Lexus',model:'RC200t'},
+  {rank:268,make:'Lexus',model:'RC300'},
+  {rank:268,make:'Lexus',model:'RC350'},
+  {rank:269,make:'Kia',model:'Seltos'},
+  {rank:270,make:'Hyundai',model:'Azera'},
+  {rank:271,make:'BMW',model:'X7'},
+  {rank:272,make:'Audi',model:'A8'},
+  {rank:272,make:'Audi',model:'A8 Quattro'},
+  {rank:273,make:'Kia',model:'Cadenza'},
+  {rank:274,make:'Kia',model:'Stinger'},
+  {rank:275,make:'BMW',model:'i3'},
+  {rank:276,make:'Buick',model:'Encore GX'},
+  {rank:277,make:'Subaru',model:'BRZ'},
+  {rank:278,make:'Volkswagen',model:'Routan'},
+  {rank:279,make:'Mitsubishi',model:'Galant'},
+  {rank:280,make:'Cadillac',model:'CT6'},
+  {rank:281,make:'Genesis',model:'G80'},
+  {rank:282,make:'BMW',model:'X4'},
+  {rank:283,make:'Tesla',model:'Model Y'},
+  {rank:284,make:'Infiniti',model:'M30'},
+  {rank:284,make:'Infiniti',model:'M35'},
+  {rank:284,make:'Infiniti',model:'M35h'},
+  {rank:284,make:'Infiniti',model:'M37'},
+  {rank:284,make:'Infiniti',model:'M45'},
+  {rank:284,make:'Infiniti',model:'M56'},
+  {rank:285,make:'Suzuki',model:'SX4'},
+  {rank:286,make:'Mazda',model:'CX-30'},
+  {rank:287,make:'Infiniti',model:'QX56'},
+  {rank:288,make:'Mercedes-Benz',model:'G500'},
+  {rank:288,make:'Mercedes-Benz',model:'G55 AMG'},
+  {rank:288,make:'Mercedes-Benz',model:'G550'},
+  {rank:288,make:'Mercedes-Benz',model:'G550 4x4'},
+  {rank:288,make:'Mercedes-Benz',model:'G580'},
+  {rank:288,make:'Mercedes-Benz',model:'G63 4x4 Squared AMG'},
+  {rank:288,make:'Mercedes-Benz',model:'G63 AMG'},
+  {rank:288,make:'Mercedes-Benz',model:'G65 AMG'},
+  {rank:289,make:'Fiat',model:'500X'},
+  {rank:290,make:'Honda',model:'Clarity'},
+  {rank:290,make:'Honda',model:'Clarity Plug-In Hybrid'},
+  {rank:291,make:'Lincoln',model:'Continental'},
+  {rank:292,make:'Alfa Romeo',model:'Giulia'},
+  {rank:292,make:'Alfa Romeo',model:'Giulia Sprint'},
+  {rank:293,make:'Mercedes-Benz',model:'Maybach SL680'},
+  {rank:293,make:'Mercedes-Benz',model:'SL320'},
+  {rank:293,make:'Mercedes-Benz',model:'SL400'},
+  {rank:293,make:'Mercedes-Benz',model:'SL43 AMG'},
+  {rank:293,make:'Mercedes-Benz',model:'SL450'},
+  {rank:293,make:'Mercedes-Benz',model:'SL500'},
+  {rank:293,make:'Mercedes-Benz',model:'SL55 AMG'},
+  {rank:293,make:'Mercedes-Benz',model:'SL550'},
+  {rank:293,make:'Mercedes-Benz',model:'SL60 AMG'},
+  {rank:293,make:'Mercedes-Benz',model:'SL600'},
+  {rank:293,make:'Mercedes-Benz',model:'SL63 AMG'},
+  {rank:293,make:'Mercedes-Benz',model:'SL63 AMG S E Performance'},
+  {rank:293,make:'Mercedes-Benz',model:'SL65 AMG'},
+  {rank:294,make:'BMW',model:'1500'},
+  {rank:294,make:'BMW',model:'1600'},
+  {rank:294,make:'BMW',model:'1602'},
+  {rank:294,make:'BMW',model:'1800'},
+  {rank:294,make:'BMW',model:'1802'},
+  {rank:294,make:'BMW',model:'1 Series M'},
+  {rank:294,make:'BMW',model:'118i'},
+  {rank:294,make:'BMW',model:'120i'},
+  {rank:294,make:'BMW',model:'125i'},
+  {rank:294,make:'BMW',model:'128i'},
+  {rank:294,make:'BMW',model:'128ti'},
+  {rank:294,make:'BMW',model:'130i'},
+  {rank:294,make:'BMW',model:'135i'},
+  {rank:294,make:'BMW',model:'135is'},
+  {rank:294,make:'BMW',model:'1600-2'},
+  {rank:294,make:'BMW',model:'1600ti'},
+  {rank:294,make:'BMW',model:'1800ti'},
+  {rank:295,make:'Honda',model:'CR-Z'},
+  {rank:296,make:'Jaguar',model:'XJ'},
+  {rank:296,make:'Jaguar',model:'XJ12'},
+  {rank:297,make:'Fiat',model:'500L'},
+  {rank:298,make:'BMW',model:'X2'},
+  {rank:299,make:'Chevrolet',model:'TrailBlazer'},
+  {rank:300,make:'Alfa Romeo',model:'Stelvio'},
+  {rank:301,make:'Cadillac',model:'XT6'},
+  {rank:302,make:'Lexus',model:'UX200'},
+  {rank:302,make:'Lexus',model:'UX250h'},
+  {rank:302,make:'Lexus',model:'UX300h'},
+  {rank:303,make:'Volvo',model:'XC70'},
+  {rank:304,make:'Infiniti',model:'QX70'},
+  {rank:305,make:'Infiniti',model:'Q70'},
+  {rank:306,make:'Toyota',model:'Land Cruiser'},
+  {rank:307,make:'Kia',model:'K5'},
+  {rank:308,make:'Infiniti',model:'JX35'},
+  {rank:309,make:'Volkswagen',model:'Eos'},
+  {rank:310,make:'Lincoln',model:'Aviator'},
+  {rank:311,make:'Mercedes-Benz',model:'A160'},
+  {rank:311,make:'Mercedes-Benz',model:'A180'},
+  {rank:311,make:'Mercedes-Benz',model:'A190'},
+  {rank:311,make:'Mercedes-Benz',model:'A200'},
+  {rank:311,make:'Mercedes-Benz',model:'A220'},
+  {rank:311,make:'Mercedes-Benz',model:'A250'},
+  {rank:311,make:'Mercedes-Benz',model:'A35 AMG'},
+  {rank:311,make:'Mercedes-Benz',model:'A45'},
+  {rank:311,make:'Mercedes-Benz',model:'A45 AMG'},
+  {rank:311,make:'Mercedes-Benz',model:'A45 AMG S'},
+  {rank:312,make:'Cadillac',model:'DTS'},
+  {rank:313,make:'Volkswagen',model:'GTI'},
+  {rank:314,make:'Infiniti',model:'FX35'},
+  {rank:314,make:'Infiniti',model:'FX37'},
+  {rank:314,make:'Infiniti',model:'FX45'},
+  {rank:314,make:'Infiniti',model:'FX50'},
+  {rank:315,make:'Audi',model:'Q8'},
+  {rank:316,make:'Infiniti',model:'QX30'},
+  {rank:317,make:'Hyundai',model:'Veracruz'},
+  {rank:318,make:'Chevrolet',model:'City Express'},
+  {rank:319,make:'Jaguar',model:'XE'},
+  {rank:320,make:'Honda',model:'Element'},
+  {rank:321,make:'Lexus',model:'LX450'},
+  {rank:321,make:'Lexus',model:'LX470'},
+  {rank:321,make:'Lexus',model:'LX570'},
+  {rank:321,make:'Lexus',model:'LX600'},
+  {rank:321,make:'Lexus',model:'LX700h'},
+  {rank:322,make:'Dodge',model:'Dakota'},
+  {rank:323,make:'Jaguar',model:'F-Type'},
+  {rank:325,make:'Mercedes-Benz',model:'GLB200'},
+  {rank:325,make:'Mercedes-Benz',model:'GLB220'},
+  {rank:325,make:'Mercedes-Benz',model:'GLB250'},
+  {rank:325,make:'Mercedes-Benz',model:'GLB35 AMG'},
+  {rank:326,make:'Infiniti',model:'Q40'},
+  {rank:327,make:'BMW',model:'Z4'},
+  {rank:328,make:'Porsche',model:'Boxster'},
+  {rank:329,make:'Land Rover',model:'Discovery'},
+  {rank:330,make:'Lincoln',model:'Nautilus'},
+  {rank:331,make:'Lincoln',model:'Town Car'},
+  {rank:332,make:'Genesis',model:'G70'},
+  {rank:333,make:'Volvo',model:'S80'},
+  {rank:334,make:'Suzuki',model:'Kizashi'},
+  {rank:335,make:'Buick',model:'Cascada'},
+  {rank:336,make:'Porsche',model:'Cayman'},
+  {rank:337,make:'Audi',model:'TT'},
+  {rank:337,make:'Audi',model:'TT Quattro'},
+  {rank:338,make:'Hyundai',model:'Venue'},
+  {rank:339,make:'Mercedes-Benz',model:'SLK200'},
+  {rank:339,make:'Mercedes-Benz',model:'SLK230'},
+  {rank:339,make:'Mercedes-Benz',model:'SLK250'},
+  {rank:339,make:'Mercedes-Benz',model:'SLK280'},
+  {rank:339,make:'Mercedes-Benz',model:'SLK300'},
+  {rank:339,make:'Mercedes-Benz',model:'SLK32 AMG'},
+  {rank:339,make:'Mercedes-Benz',model:'SLK320'},
+  {rank:339,make:'Mercedes-Benz',model:'SLK350'},
+  {rank:339,make:'Mercedes-Benz',model:'SLK55 AMG'},
+  {rank:340,make:'Hyundai',model:'Equus'},
+  {rank:341,make:'Volvo',model:'C70'},
+  {rank:342,make:'Volvo',model:'V90'},
+  {rank:342,make:'Volvo',model:'V90 Cross Country'},
+  {rank:343,make:'Land Rover',model:'LR2'},
+  {rank:344,make:'Cadillac',model:'Escalade ESV'},
+  {rank:345,make:'Chevrolet',model:'Caprice'},
+  {rank:346,make:'Scion',model:'iQ'},
+  {rank:347,make:'Suzuki',model:'Grand Vitara'},
+  {rank:348,make:'Acura',model:'RLX'},
+  {rank:349,make:'Fiat',model:'124 Spider'},
+  {rank:350,make:'Cadillac',model:'CT5'},
+  {rank:351,make:'Ram',model:'C/V'},
+  {rank:351,make:'Ram',model:'H100 Van'},
+  {rank:352,make:'Mitsubishi',model:'Endeavor'},
+  {rank:353,make:'Jaguar',model:'E-Pace'},
+  {rank:354,make:'Infiniti',model:'EX35'},
+  {rank:355,make:'Toyota',model:'86'},
+  {rank:356,make:'Lexus',model:'HS250h'},
+  {rank:357,make:'Volvo',model:'S90'},
+  {rank:359,make:'Chevrolet',model:'SS'},
+  {rank:360,make:'Maserati',model:'Ghibli'},
+  {rank:361,make:'Porsche',model:'718 Boxster'},
+  {rank:361,make:'Porsche',model:'718 Cayman'},
+  {rank:361,make:'Porsche',model:'718 Spyder'},
+  {rank:362,make:'Audi',model:'e-tron GT'},
+  {rank:362,make:'Audi',model:'e-tron Quattro'},
+  {rank:362,make:'Audi',model:'e-tron S'},
+  {rank:362,make:'Audi',model:'e-tron S Sportback'},
+  {rank:362,make:'Audi',model:'e-tron Sportback'},
+  {rank:363,make:'BMW',model:'840Ci'},
+  {rank:363,make:'BMW',model:'840i'},
+  {rank:363,make:'BMW',model:'840i Gran Coupe'},
+  {rank:363,make:'BMW',model:'840i xDrive'},
+  {rank:363,make:'BMW',model:'840i xDrive Gran Coupe'},
+  {rank:363,make:'BMW',model:'850Ci'},
+  {rank:363,make:'BMW',model:'850CSi'},
+  {rank:363,make:'BMW',model:'850i'},
+  {rank:364,make:'Mercedes-Benz',model:'SLC180'},
+  {rank:364,make:'Mercedes-Benz',model:'SLC200'},
+  {rank:364,make:'Mercedes-Benz',model:'SLC300'},
+  {rank:364,make:'Mercedes-Benz',model:'SLC43 AMG'},
+  {rank:365,make:'Volvo',model:'V60'},
+  {rank:366,make:'Volvo',model:'C30'},
+  {rank:367,make:'Genesis',model:'G90'},
+  {rank:368,make:'Mini',model:'Cooper Clubman'},
+  {rank:369,make:'Chrysler',model:'PT Cruiser'},
+  {rank:370,make:'Kia',model:'Borrego'},
+  {rank:371,make:'Subaru',model:'Tribeca'},
+  {rank:372,make:'Nissan',model:'GT-R'},
+  {rank:373,make:'Land Rover',model:'Defender'},
+  {rank:373,make:'Land Rover',model:'Defender 110'},
+  {rank:373,make:'Land Rover',model:'Defender 130'},
+  {rank:373,make:'Land Rover',model:'Defender 90'},
+  {rank:374,make:'Mercedes-Benz',model:'AMG GT'},
+  {rank:375,make:'Toyota',model:'Supra'},
+  {rank:376,make:'Volvo',model:'S40'},
+  {rank:377,make:'Jaguar',model:'XK'},
+  {rank:377,make:'Jaguar',model:'XK120'},
+  {rank:377,make:'Jaguar',model:'XK140'},
+  {rank:377,make:'Jaguar',model:'XK150'},
+  {rank:377,make:'Jaguar',model:'XK8'},
+  {rank:377,make:'Jaguar',model:'XKSS'},
+  {rank:378,make:'Audi',model:'R8'},
+  {rank:379,make:'Saab',model:'46268'},
+  {rank:379,make:'Saab',model:'9-3X'},
+  {rank:380,make:'Jeep',model:'Commander'},
+  {rank:381,make:'Cadillac',model:'STS'},
+  {rank:382,make:'Scion',model:'iA'},
+  {rank:383,make:'Maserati',model:'Levante'},
+  {rank:384,make:'Mini',model:'Cooper Paceman'},
+  {rank:385,make:'Lexus',model:'LC500'},
+  {rank:385,make:'Lexus',model:'LC500h'},
+  {rank:386,make:'BMW',model:'i8'},
+  {rank:387,make:'Mercedes-Benz',model:'R320'},
+  {rank:387,make:'Mercedes-Benz',model:'R350'},
+  {rank:387,make:'Mercedes-Benz',model:'R500'},
+  {rank:387,make:'Mercedes-Benz',model:'R550'},
+  {rank:387,make:'Mercedes-Benz',model:'R63 AMG'},
+  {rank:388,make:'Mazda',model:'Tribute'},
+  {rank:389,make:'Toyota',model:'Mirai'},
+  {rank:390,make:'Kia',model:'K900'},
+  {rank:391,make:'Volkswagen',model:'Arteon'},
+  {rank:392,make:'Acura',model:'ZDX'},
+  {rank:393,make:'Suzuki',model:'Equator'},
+  {rank:394,make:'Acura',model:'RL'},
+  {rank:395,make:'Mercedes-Benz',model:'SLK200'},
+  {rank:395,make:'Mercedes-Benz',model:'SLK230'},
+  {rank:395,make:'Mercedes-Benz',model:'SLK250'},
+  {rank:395,make:'Mercedes-Benz',model:'SLK280'},
+  {rank:395,make:'Mercedes-Benz',model:'SLK300'},
+  {rank:395,make:'Mercedes-Benz',model:'SLK32 AMG'},
+  {rank:395,make:'Mercedes-Benz',model:'SLK320'},
+  {rank:395,make:'Mercedes-Benz',model:'SLK350'},
+  {rank:395,make:'Mercedes-Benz',model:'SLK55 AMG'},
+  {rank:396,make:'Mini',model:'Roadster'},
+  {rank:397,make:'Ford',model:'Bronco Sport'},
+  {rank:398,make:'Scion',model:'iM'},
+  {rank:399,make:'Jaguar',model:'I-Pace'},
+  {rank:400,make:'Cadillac',model:'CT4'},
+  {rank:401,make:'Volkswagen',model:'e-Golf'},
+  {rank:402,make:'Porsche',model:'Taycan'},
+  {rank:403,make:'Mercedes-Benz',model:'B Electric Drive'},
+  {rank:403,make:'Mercedes-Benz',model:'B180'},
+  {rank:403,make:'Mercedes-Benz',model:'B200'},
+  {rank:403,make:'Mercedes-Benz',model:'B250'},
+  {rank:403,make:'Mercedes-Benz',model:'B250e'},
+  {rank:404,make:'Mercedes-AMG',model:'GT'},
+  {rank:405,make:'Maserati',model:'Quattroporte'},
+  {rank:406,make:'Cadillac',model:'Escalade EXT'},
+  {rank:407,make:'Dodge',model:'Viper'},
+  {rank:408,make:'Kia',model:'Rondo'},
+  {rank:409,make:'Infiniti',model:'EX35'},
+  {rank:409,make:'Infiniti',model:'EX37'},
+  {rank:410,make:'Mercedes-Benz',model:'CL200'},
+  {rank:410,make:'Mercedes-Benz',model:'CL230'},
+  {rank:410,make:'Mercedes-Benz',model:'CL500'},
+  {rank:410,make:'Mercedes-Benz',model:'CL55 AMG'},
+  {rank:410,make:'Mercedes-Benz',model:'CL550'},
+  {rank:410,make:'Mercedes-Benz',model:'CL600'},
+  {rank:410,make:'Mercedes-Benz',model:'CL63 AMG'},
+  {rank:410,make:'Mercedes-Benz',model:'CL65 AMG'},
+  {rank:411,make:'Mini',model:'Cooper Clubman'},
+  {rank:412,make:'Cadillac',model:'ELR'},
+  {rank:413,make:'Mercedes-Benz',model:'SLS AMG'},
+  {rank:415,make:'Saab',model:'46270'},
+  {rank:416,make:'Volvo',model:'V50'},
+  {rank:417,make:'Maserati',model:'GranTurismo'},
+  {rank:418,make:'Alfa Romeo',model:'4C'},
+  {rank:419,make:'Mitsubishi',model:'i-MiEV'},
+  {rank:420,make:'Bentley',model:'Continental'},
+  {rank:421,make:'Bentley',model:'Bentayga'},
+  {rank:422,make:'Mazda',model:'RX-8'},
+  {rank:423,make:'Genesis',model:'GV80'},
+  {rank:424,make:'Acura',model:'NSX'},
+  {rank:425,make:'Volvo',model:'V40'},
+  {rank:425,make:'Volvo',model:'V40 Cross Country'},
+  {rank:426,make:'Ford',model:'GT'},
+  {rank:427,make:'Bentley',model:'Flying Spur'},
+  {rank:428,make:'Mercedes-Benz',model:'CLK280'},
+  {rank:428,make:'Mercedes-Benz',model:'CLK320'},
+  {rank:428,make:'Mercedes-Benz',model:'CLK350'},
+  {rank:428,make:'Mercedes-Benz',model:'CLK430'},
+  {rank:428,make:'Mercedes-Benz',model:'CLK500'},
+  {rank:428,make:'Mercedes-Benz',model:'CLK55 AMG'},
+  {rank:428,make:'Mercedes-Benz',model:'CLK550'},
+  {rank:428,make:'Mercedes-Benz',model:'CLK63 AMG'},
+  {rank:429,make:'Hyundai',model:'Nexo'},
+  {rank:430,make:'Suzuki',model:'XL7'},
+  {rank:431,make:'Lexus',model:'SC430'},
+  {rank:432,make:'Porsche',model:'918 Spyder'},
+  {rank:433,make:'Kia',model:'Amanti'},
+  {rank:434,make:'Saab',model:'9-4X'},
+  {rank:435,make:'Bentley',model:'Mulsanne'},
+  {rank:436,make:'Cadillac',model:'XLR'},
+  {rank:437,make:'Lexus',model:'LFA'},
+  {rank:438,make:'Honda',model:'S2000'},
+  {rank:439,make:'GMC',model:'Envoy'},
+  {rank:440,make:'Chevrolet',model:'Aveo'},
+  {rank:440,make:'Chevrolet',model:'Aveo5'},
+  {rank:442,make:'Suzuki',model:'Forenza'},
+  {rank:443,make:'Suzuki',model:'Reno'},
+  {rank:444,make:'Suzuki',model:'Verona'}
+];
+const state = {
+  search: '',
+  selectedCountry: '',
+  selectedBrand: '',
+  page: 1,
+  perPage: 25
+};
+
+const COUNTRY_COLORS = {
+  'Germany':      { bg: '#FEE2E2', color: '#DC2626' },
+  'Japan':        { bg: '#FCE7F3', color: '#DB2777' },
+  'USA':          { bg: '#DBEAFE', color: '#2563EB' },
+  'South Korea':  { bg: '#E0E7FF', color: '#4F46E5' },
+  'France':       { bg: '#FEF3C7', color: '#D97706' },
+  'Sweden':       { bg: '#D1FAE5', color: '#059669' },
+  'Italy':        { bg: '#F3E8FF', color: '#7C3AED' },
+  'UK':           { bg: '#E0F2FE', color: '#0284C7' },
+  'China':        { bg: '#FFEDD5', color: '#EA580C' }
+};
+
+function getCountryColor(country) {
+  return COUNTRY_COLORS[country] || { bg: '#F3F4F6', color: '#6B7280' };
+}
+
+function formatNumber(n) {
+  return n.toLocaleString('en-US');
+}
+
+function highlightText(text, query) {
+  if (!query) return text;
+  var safe = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  var re = new RegExp('(' + safe + ')', 'gi');
+  return text.replace(re, '<span class="search-highlight">$1</span>');
+}
+
+function getFilteredData() {
+  let data = RAW_DATA.slice();
+  if (state.search) {
+    const q = state.search.toLowerCase();
+    data = data.filter(r => String(r['\u8f66\u578b']).toLowerCase().includes(q));
+  }
+  if (state.selectedCountry) {
+    data = data.filter(r => r['\u56fd\u5bb6'] === state.selectedCountry);
+  }
+  if (state.selectedBrand) {
+    data = data.filter(r => r['\u54c1\u724c'] === state.selectedBrand);
+  }
+  data.sort((a, b) => b['\u9500\u91cf'] - a['\u9500\u91cf']);
+  return data;
+}
+
+function getBrandsForCountry(country) {
+  var brandMap = {};
+  RAW_DATA.forEach(function(r) {
+    if (r['\u56fd\u5bb6'] === country) {
+      if (!brandMap[r['\u54c1\u724c']]) {
+        brandMap[r['\u54c1\u724c']] = r['\u54c1\u724c\u603b\u9500\u91cf'];
+      }
+    }
+  });
+  var brands = Object.keys(brandMap).map(function(b) {
+    return { name: b, totalSales: brandMap[b] };
+  });
+  brands.sort(function(a, b) { return b.totalSales - a.totalSales; });
+  return brands;
+}
+
+function populateBrandSelect(country) {
+  var brandSelect = document.getElementById('brandSelect');
+  var brandHint = document.getElementById('brandHint');
+  brandSelect.innerHTML = '';
+
+  var defaultOpt = document.createElement('option');
+  defaultOpt.value = '';
+  defaultOpt.textContent = '\u5168\u90e8\u54c1\u724c';
+  brandSelect.appendChild(defaultOpt);
+
+  var brandMap = {};
+  RAW_DATA.forEach(function(r) {
+    if (!country || r['\u56fd\u5bb6'] === country) {
+      if (!brandMap[r['\u54c1\u724c']]) {
+        brandMap[r['\u54c1\u724c']] = r['\u54c1\u724c\u603b\u9500\u91cf'];
+      }
+    }
+  });
+  var brands = Object.keys(brandMap).map(function(b) {
+    return { name: b, totalSales: brandMap[b] };
+  });
+  brands.sort(function(a, b) { return b.totalSales - a.totalSales; });
+  brands.forEach(function(b) {
+    var opt = document.createElement('option');
+    opt.value = b.name;
+    opt.textContent = b.name + '  (' + formatNumber(b.totalSales) + ')';
+    brandSelect.appendChild(opt);
+  });
+
+  brandHint.style.display = 'block';
+  brandHint.textContent = '\u54c1\u724c\u6309\u5728\u7f8e\u56fd\u5e02\u573a\u7684\u603b\u9500\u91cf\u4ece\u9ad8\u5230\u4f4e\u6392\u5217';
+}
+
+// Build hierarchy tree from RAW_DATA
+function buildFullHierarchy() {
+  // Build complete tree: L1=Country, L2=Parent Company, L3=Brands, L4=Models
+  var countries = {};
+  RAW_DATA.forEach(function(r) {
+    var c = r['\u56fd\u5bb6'];
+    var p = r['\u603b\u516c\u53f8'];
+    if (!countries[c]) countries[c] = {};
+    if (!countries[c][p]) countries[c][p] = {};
+    if (!countries[c][p][r['\u54c1\u724c']]) {
+      countries[c][p][r['\u54c1\u724c']] = { models: [], totalSales: r['\u54c1\u724c\u603b\u9500\u91cf'] };
+    }
+    countries[c][p][r['\u54c1\u724c']].models.push(String(r['\u8f66\u578b']));
+  });
+
+  var tree = [];
+  Object.keys(countries).sort().forEach(function(country) {
+    var parentCos = [];
+    Object.keys(countries[country]).sort().forEach(function(parentCo) {
+      var brands = [];
+      Object.keys(countries[country][parentCo]).forEach(function(brandName) {
+        var info = countries[country][parentCo][brandName];
+        var ranked = {};
+        RAW_DATA.forEach(function(r) {
+          if (r['\u54c1\u724c'] === brandName) {
+            ranked[String(r['\u8f66\u578b'])] = Number(r['\u603b\u6392\u540d']);
+          }
+        });
+        info.models.sort(function(a, b) { return (ranked[a] || 999) - (ranked[b] || 999); });
+        brands.push({ name: brandName, models: info.models, totalSales: info.totalSales });
+      });
+      brands.sort(function(a, b) { return b.totalSales - a.totalSales; });
+      parentCos.push({ name: parentCo, brands: brands });
+    });
+    tree.push({ country: country, parents: parentCos });
+  });
+  return tree;
+}
+
+function buildHierarchy(brandName) {
+  // Find the selected brand's info
+  var brandInfo = null;
+  RAW_DATA.forEach(function(r) {
+    if (r['\u54c1\u724c'] === brandName && !brandInfo) {
+      brandInfo = r;
+    }
+  });
+  if (!brandInfo) return null;
+
+  var country = brandInfo['\u56fd\u5bb6'];
+  var parentCompany = brandInfo['\u603b\u516c\u53f8'];
+
+  // Collect all brands under the same parent company (from same country)
+  var siblingBrands = {};
+  RAW_DATA.forEach(function(r) {
+    if (r['\u56fd\u5bb6'] === country && r['\u603b\u516c\u53f8'] === parentCompany) {
+      if (!siblingBrands[r['\u54c1\u724c']]) {
+        siblingBrands[r['\u54c1\u724c']] = {
+          models: [],
+          totalSales: r['\u54c1\u724c\u603b\u9500\u91cf']
+        };
+      }
+      siblingBrands[r['\u54c1\u724c']].models.push(String(r['\u8f66\u578b']));
+    }
+  });
+
+  // Sort siblings by total sales descending
+  var siblingList = Object.keys(siblingBrands).map(function(name) {
+    return { name: name, models: siblingBrands[name].models, totalSales: siblingBrands[name].totalSales };
+  });
+  siblingList.sort(function(a, b) { return b.totalSales - a.totalSales; });
+
+  // Sort models by rank ascending
+  siblingList.forEach(function(s) {
+    var ranked = {};
+    RAW_DATA.forEach(function(r) {
+      if (r['\u54c1\u724c'] === s.name) {
+        ranked[String(r['\u8f66\u578b'])] = Number(r['\u603b\u6392\u540d']);
+      }
+    });
+    s.models.sort(function(a, b) { return (ranked[a] || 999) - (ranked[b] || 999); });
+  });
+
+  return {
+    country: country,
+    parentCompany: parentCompany,
+    selectedBrand: brandName,
+    siblings: siblingList
+  };
+}
+
+function renderBrandTree() {
+  var container = document.getElementById('brandTreeContainer');
+  var treeEl = document.getElementById('brandTree');
+  var brandLabel = document.getElementById('brandTreeBrand');
+
+  container.style.display = 'block';
+
+  // Reset expand state when filter context changes
+  var expandKey = (state.selectedBrand || '') + '|' + (state.selectedCountry || '') + '|' + state.search;
+  if (window._htreeExpandKey !== expandKey) {
+    window._htreeExpanded = {};
+    window._htreeExpandKey = expandKey;
+  }
+
+  var hasBrand = !!state.selectedBrand;
+  var hasCountry = !!state.selectedCountry;
+  var hasSearch = !!state.search;
+  var searchLower = hasSearch ? state.search.toLowerCase() : '';
+  var searchModel = '';
+
+  if (hasSearch) {
+    var matches = [];
+    RAW_DATA.forEach(function(r) {
+      if (String(r['\u8f66\u578b']).toLowerCase().indexOf(searchLower) !== -1) {
+        matches.push(String(r['\u8f66\u578b']));
+      }
+    });
+    if (matches.length === 1) searchModel = matches[0];
+  }
+
+  function countryHasSearchMatch(country) {
+    if (!hasSearch) return false;
+    var found = false;
+    RAW_DATA.forEach(function(r) {
+      if (r['\u56fd\u5bb6'] === country && String(r['\u8f66\u578b']).toLowerCase().indexOf(searchLower) !== -1) found = true;
+    });
+    return found;
+  }
+
+  function brandHasSearchMatch(brand) {
+    if (!hasSearch) return false;
+    var found = false;
+    RAW_DATA.forEach(function(r) {
+      if (r['\u54c1\u724c'] === brand && String(r['\u8f66\u578b']).toLowerCase().indexOf(searchLower) !== -1) found = true;
+    });
+    return found;
+  }
+
+  var NODE_W = [130, 160, 110, 110];
+  var NODE_H = [34, 30, 28, 24];
+  var GAP_X = 36;
+  var GAP_Y = 6;
+  var PADDING = 12;
+
+  // Build flat list of nodes
+  var nodes = [];
+  var uid = 0;
+
+  function addNode(level, text, cls, parentUid, extra) {
+    var id = 'n' + (uid++);
+    nodes.push({ id: id, level: level, text: text, cls: cls, parentUid: parentUid, extra: extra || null });
+    return id;
+  }
+
+  // --- BRAND SELECTED MODE ---
+  if (hasBrand) {
+    var hierarchy = buildHierarchy(state.selectedBrand);
+    if (!hierarchy) {
+      brandLabel.textContent = '';
+      treeEl.innerHTML = '<div class="brand-tree-placeholder">\u672a\u627e\u5230\u8be5\u54c1\u724c\u7684\u5c42\u7ea7\u4fe1\u606f</div>';
+      return;
+    }
+    brandLabel.textContent = '\u2014 ' + hierarchy.selectedBrand;
+
+    var countryId = addNode(0, hierarchy.country, 'l1 highlight-country', null);
+    var parentId = addNode(1, hierarchy.parentCompany, 'l2', countryId);
+    hierarchy.siblings.forEach(function(s) {
+      var isActive = s.name === hierarchy.selectedBrand;
+      var brandCls = 'l3' + (isActive ? ' active' : '');
+      var bid = addNode(2, s.name, brandCls, parentId, {
+        isActive: isActive,
+        childCount: s.models.length
+      });
+      if (isActive || !s.models.length) {
+        s.models.forEach(function(m) {
+          var mhl = (searchModel && m === searchModel) ? ' highlight-model' : '';
+          addNode(3, m, 'l4' + mhl, bid);
+        });
+      }
+    });
+  } else {
+    // FULL TREE MODE (all collapsed by default)
+    brandLabel.textContent = hasSearch ? ('\u2014 \u641c\u7d22: ' + state.search) : '';
+    var fullTree = buildFullHierarchy();
+
+    fullTree.forEach(function(countryNode) {
+      var countryHL = '';
+      if (hasCountry && countryNode.country === state.selectedCountry) countryHL = ' highlight-country';
+      else if (!hasCountry && hasSearch && countryHasSearchMatch(countryNode.country)) countryHL = ' highlight-country';
+
+      var cid = addNode(0, countryNode.country, 'l1' + countryHL, null, { childCount: countryNode.parents.length });
+      countryNode.parents.forEach(function(parentNode) {
+        var pid = addNode(1, parentNode.name, 'l2', cid, { childCount: parentNode.brands.length });
+        parentNode.brands.forEach(function(s) {
+          var brandHL = (hasSearch && brandHasSearchMatch(s.name)) ? ' highlight-brand' : '';
+          addNode(2, s.name, 'l3' + brandHL, pid, { childCount: s.models.length });
+        });
+      });
+    });
+  }
+
+  // --- LAYOUT ENGINE ---
+  // Only expanded nodes count toward subtree height
+  if (!window._htreeExpanded) window._htreeExpanded = {};
+
+  function isExpanded(nodeId) {
+    return !!window._htreeExpanded[nodeId];
+  }
+
+  function measureSubtree(nodeId) {
+    if (!isExpanded(nodeId)) {
+      // Collapsed: only own height
+      var node = nodes.filter(function(n){return n.id===nodeId;})[0];
+      return NODE_H[node.level] + GAP_Y;
+    }
+    var children = [];
+    nodes.forEach(function(n) { if (n.parentUid === nodeId) children.push(n); });
+    if (children.length === 0) {
+      var node = nodes.filter(function(n){return n.id===nodeId;})[0];
+      return NODE_H[node.level] + GAP_Y;
+    }
+    var total = 0;
+    children.forEach(function(c) { total += measureSubtree(c.id); });
+    return total;
+  }
+
+  var subtreeH = {};
+  nodes.forEach(function(n) { subtreeH[n.id] = measureSubtree(n.id); });
+
+  var positions = {};
+
+  function layoutNode(nodeId, x, y) {
+    var node = nodes.filter(function(n){return n.id===nodeId;})[0];
+    var lvl = node.level;
+    positions[nodeId] = { x: x, y: y, w: NODE_W[lvl], h: NODE_H[lvl], node: node };
+
+    if (!isExpanded(nodeId)) return;
+
+    var children = [];
+    nodes.forEach(function(n) { if (n.parentUid === nodeId) children.push(n); });
+    if (children.length === 0) return;
+
+    var childX = x + NODE_W[lvl] + GAP_X;
+    var childY = y;
+    children.forEach(function(c) {
+      layoutNode(c.id, childX, childY);
+      childY += subtreeH[c.id];
+    });
+  }
+
+  // Auto-expand ancestor nodes in brand mode
+  if (hasBrand) {
+    // Expand all nodes that have children (country -> parent -> brands all visible)
+    nodes.forEach(function(n) {
+      var hasChildren = nodes.some(function(cn) { return cn.parentUid === n.id; });
+      if (hasChildren) {
+        window._htreeExpanded[n.id] = true;
+      }
+    });
+  }
+
+  var roots = nodes.filter(function(n) { return n.level === 0; });
+  var startY = PADDING;
+  roots.forEach(function(root) {
+    layoutNode(root.id, PADDING, startY);
+    startY += subtreeH[root.id];
+  });
+
+  // --- RENDER SVG + NODES ---
+  var totalW = 0, totalH = 0;
+  Object.keys(positions).forEach(function(id) {
+    var p = positions[id];
+    if (p.x + p.w > totalW) totalW = p.x + p.w;
+    if (p.y + p.h > totalH) totalH = p.y + p.h;
+  });
+  totalW += PADDING;
+  totalH += PADDING;
+
+  // Collect visible edges (only between visible nodes)
+  var edgeList = [];
+  nodes.forEach(function(n) {
+    if (n.parentUid !== null && positions[n.id] && positions[n.parentUid]) {
+      // Only draw edge if parent is expanded (child is visible)
+      if (isExpanded(n.parentUid)) {
+        edgeList.push({ from: positions[n.parentUid], to: positions[n.id] });
+      }
+    }
+  });
+
+  // Build SVG paths: right-angle polyline (horizontal -> vertical -> horizontal)
+  var svgPaths = '';
+  var LINE_COLOR = '#E5E7EB';
+  var LINE_W = 1.5;
+  edgeList.forEach(function(e) {
+    var fx = e.from.x + e.from.w;
+    var fy = e.from.y + e.from.h / 2;
+    var tx = e.to.x;
+    var ty = e.to.y + e.to.h / 2;
+    var midX = fx + (tx - fx) / 2;
+    svgPaths += '<path d="M' + fx + ',' + fy + ' H' + midX + ' V' + ty + ' H' + tx + '" stroke="' + LINE_COLOR + '" stroke-width="' + LINE_W + '" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+  });
+
+  // Build node HTML (only visible nodes)
+  var nodesHtml = '';
+  Object.keys(positions).forEach(function(id) {
+    var p = positions[id];
+    var n = p.node;
+
+    // Check if this node should be visible
+    if (n.parentUid !== null && !isExpanded(n.parentUid)) return;
+
+    var hasActualChildren = nodes.some(function(cn) { return cn.parentUid === n.id; });
+    var inner = '';
+    if (hasActualChildren) {
+      var expanded = isExpanded(n.id);
+      inner += '<span class="brand-tree-toggle' + (expanded ? '' : ' collapsed') + '" data-toggle-id="' + n.id + '">&#9660;</span>';
+    }
+    inner += '<span class="brand-tree-node ' + n.cls + '">' + n.text + '</span>';
+    if (n.extra && n.extra.childCount > 0 && !hasActualChildren && !isExpanded(n.id)) {
+      inner += '<span class="collapse-badge">' + n.extra.childCount + '</span>';
+    }
+
+    nodesHtml += '<div class="htree-nodewrap" data-node-id="' + n.id + '" style="position:absolute;left:' + p.x + 'px;top:' + p.y + 'px;">';
+    nodesHtml += inner;
+    nodesHtml += '</div>';
+  });
+
+  var html = '<div class="htree-canvas" style="position:relative;min-width:' + totalW + 'px;min-height:' + totalH + 'px;">';
+  html += '<svg class="htree-svg-lines" width="' + totalW + '" height="' + totalH + '" xmlns="http://www.w3.org/2000/svg">' + svgPaths + '</svg>';
+  html += nodesHtml;
+  html += '</div>';
+
+  treeEl.innerHTML = html;
+
+  // Store for toggle
+  window._htreeNodes = nodes;
+
+  // Bind toggle clicks
+  treeEl.querySelectorAll('.brand-tree-toggle').forEach(function(toggle) {
+    toggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var nodeId = this.getAttribute('data-toggle-id');
+      toggleTreeNode(nodeId);
+    });
+  });
+}
+
+// Toggle: flip expanded state and re-render the tree
+function toggleTreeNode(nodeId) {
+  if (!window._htreeExpanded) window._htreeExpanded = {};
+  window._htreeExpanded[nodeId] = !window._htreeExpanded[nodeId];
+  renderBrandTree();
+}
+
+function render() {
+  var filtered = getFilteredData();
+  renderStats(filtered);
+  renderBrandTree();
+  renderTable(filtered);
+}
+
+function init() {
+  var countries = [];
+  var countrySet = {};
+  RAW_DATA.forEach(function(r) {
+    if (!countrySet[r['\u56fd\u5bb6']]) {
+      countrySet[r['\u56fd\u5bb6']] = true;
+      countries.push(r['\u56fd\u5bb6']);
+    }
+  });
+  countries.sort();
+
+  var countrySelect = document.getElementById('countrySelect');
+
+  // Store full country list and render function
+  var fullCountries = countries.slice();
+  window._restoreCountrySelect = function() {
+    countrySelect.innerHTML = '<option value="">\u5168\u90e8\u56fd\u5bb6</option>';
+    fullCountries.forEach(function(c) {
+      var opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      countrySelect.appendChild(opt);
+    });
+    countrySelect.disabled = false;
+  };
+
+  countries.forEach(function(c) {
+    var opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    countrySelect.appendChild(opt);
+  });
+
+  countrySelect.addEventListener('change', function() {
+    state.selectedCountry = this.value;
+    state.selectedBrand = '';
+    state.page = 1;
+    populateBrandSelect(state.selectedCountry);
+    if (state.selectedBrand) brandSelect.value = state.selectedBrand;
+    render();
+  });
+
+  var brandSelect = document.getElementById('brandSelect');
+  brandSelect.addEventListener('change', function() {
+    state.selectedBrand = this.value;
+    state.page = 1;
+
+    if (state.selectedBrand) {
+      // Find the brand's country (most models)
+      var countryCount = {};
+      RAW_DATA.forEach(function(r) {
+        if (r['\u54c1\u724c'] === state.selectedBrand) {
+          countryCount[r['\u56fd\u5bb6']] = (countryCount[r['\u56fd\u5bb6']] || 0) + 1;
+        }
+      });
+      var bestCountry = Object.keys(countryCount).sort(function(a, b) {
+        return countryCount[b] - countryCount[a];
+      })[0];
+      state.selectedCountry = bestCountry;
+
+      // Lock country dropdown to only this country
+      countrySelect.innerHTML = '<option value="' + bestCountry + '">' + bestCountry + '</option>';
+      countrySelect.disabled = true;
+
+      // Re-populate brand list for locked country
+      populateBrandSelect(state.selectedCountry);
+      brandSelect.value = state.selectedBrand;
+    } else {
+      // Brand cleared back to "全部品牌" - restore country options
+      state.selectedCountry = '';
+      countrySelect.disabled = false;
+      window._restoreCountrySelect();
+      populateBrandSelect('');
+    }
+
+    render();
+  });
+
+  document.getElementById('searchInput').addEventListener('input', function() {
+    state.search = this.value.trim();
+    state.page = 1;
+
+    // Auto-lock country and brand when search matches exactly one model
+    if (state.search) {
+      var matches = RAW_DATA.filter(function(r) {
+        return String(r['\u8f66\u578b']).toLowerCase().indexOf(state.search.toLowerCase()) !== -1;
+      });
+      if (matches.length === 1) {
+        var m = matches[0];
+        state.selectedCountry = m['\u56fd\u5bb6'];
+        state.selectedBrand = m['\u54c1\u724c'];
+        countrySelect.innerHTML = '<option value="' + m['\u56fd\u5bb6'] + '">' + m['\u56fd\u5bb6'] + '</option>';
+        countrySelect.disabled = true;
+        populateBrandSelect(m['\u56fd\u5bb6']);
+        brandSelect.innerHTML = '<option value="' + m['\u54c1\u724c'] + '">' + m['\u54c1\u724c'] + '</option>';
+        brandSelect.disabled = true;
+      } else {
+        // Multiple or zero matches - unlock dropdowns
+        state.selectedCountry = '';
+        state.selectedBrand = '';
+        countrySelect.disabled = false;
+        brandSelect.disabled = false;
+        window._restoreCountrySelect();
+        populateBrandSelect('');
+      }
+    } else {
+      // Search cleared - unlock dropdowns
+      state.selectedCountry = '';
+      state.selectedBrand = '';
+      countrySelect.disabled = false;
+      brandSelect.disabled = false;
+      window._restoreCountrySelect();
+      populateBrandSelect('');
+    }
+
+    render();
+  });
+
+  document.getElementById('clearFilters').addEventListener('click', function() {
+    state.selectedCountry = '';
+    state.selectedBrand = '';
+    state.search = '';
+    state.page = 1;
+    window._restoreCountrySelect();
+    populateBrandSelect('');
+    document.getElementById('searchInput').value = '';
+    render();
+  });
+
+  populateBrandSelect('');
+  render();
+}
+
+init();
+
+// ========== BATCH SEARCH MODULE ==========
+(function() {
+  var batchResults = [];
+
+  // Toggle module
+  document.getElementById('batchToggle').addEventListener('click', function() {
+    var body = document.getElementById('batchBody');
+    var arrow = document.getElementById('batchArrow');
+    var isOpen = body.classList.contains('open');
+    if (isOpen) {
+      body.classList.remove('open');
+      arrow.classList.remove('open');
+    } else {
+      body.classList.add('open');
+      arrow.classList.add('open');
+    }
+  });
+
+  // Parse batch input
+  function parseBatchInput(text) {
+    var lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+    var parsed = [];
+    lines.forEach(function(line) {
+      line = line.trim();
+      if (!line) return;
+      // Try tab first, then space
+      var parts;
+      if (line.indexOf('\t') >= 0) {
+        parts = line.split('\t');
+      } else {
+        parts = line.split(/\s+/);
+      }
+      if (parts.length >= 2) {
+        parsed.push({
+          brand: parts[0].trim(),
+          model: parts.slice(1).join(' ').trim()
+        });
+      } else if (parts.length === 1 && parts[0]) {
+        // Single word: treat as model, search across all brands
+        parsed.push({
+          brand: '',
+          model: parts[0].trim()
+        });
+      }
+    });
+    return parsed;
+  }
+
+  // Match against RAW_DATA
+  function matchBatchData(items) {
+    var results = [];
+    var seen = {};
+
+    items.forEach(function(item) {
+      // Search in MODEL_RANK_DATA first (Excel reference)
+      MODEL_RANK_DATA.forEach(function(md) {
+        var makeMatch = item.brand ? md.make.toLowerCase() === item.brand.toLowerCase() : true;
+        var modelMatch = item.model ? md.model.toLowerCase() === item.model.toLowerCase() : false;
+        if (makeMatch && modelMatch) {
+          var key = md.make + '|' + md.model;
+          if (!seen[key]) {
+            seen[key] = true;
+            // Find corresponding RAW_DATA row for detailed info
+            var rawMatch = null;
+            RAW_DATA.forEach(function(r) {
+              if (r['\u54c1\u724c'].toLowerCase() === md.make.toLowerCase() && String(r['\u8f66\u578b']).toLowerCase() === md.model.toLowerCase()) {
+                if (!rawMatch) rawMatch = r;
+              }
+            });
+            if (rawMatch) {
+              results.push({
+                '\u54c1\u724c': rawMatch['\u54c1\u724c'],
+                '\u8f66\u578b': rawMatch['\u8f66\u578b'],
+                '\u56fd\u5bb6': rawMatch['\u56fd\u5bb6'],
+                '\u603b\u516c\u53f8': rawMatch['\u603b\u516c\u53f8'],
+                '\u9500\u91cf': rawMatch['\u9500\u91cf'],
+                '\u54c1\u724c\u603b\u9500\u91cf': rawMatch['\u54c1\u724c\u603b\u9500\u91cf'],
+                '\u603b\u6392\u540d': rawMatch['\u603b\u6392\u540d'],
+                '_excelRank': md.rank,
+                '_excelIndex': results.length
+              });
+            } else {
+              // Not in RAW_DATA but in Excel - add with Excel info only
+              results.push({
+                '\u54c1\u724c': md.make,
+                '\u8f66\u578b': md.model,
+                '\u56fd\u5bb6': '-',
+                '\u603b\u516c\u53f8': '-',
+                '\u9500\u91cf': 0,
+                '\u54c1\u724c\u603b\u9500\u91cf': 0,
+                '\u603b\u6392\u540d': md.rank,
+                '_excelRank': md.rank,
+                '_excelIndex': results.length
+              });
+            }
+          }
+        }
+      });
+    });
+    return results;
+  }
+
+  // Render batch results
+  // Search button
+  document.getElementById('batchSearchBtn').addEventListener('click', function() {
+    var text = document.getElementById('batchInput').value.trim();
+    if (!text) return;
+
+    var items = parseBatchInput(text);
+    if (items.length === 0) return;
+
+    var results = matchBatchData(items);
+    // Sort by Excel rank ascending, then Excel default order for same rank
+    results.sort(function(a, b) {
+      if (a._excelRank !== b._excelRank) return a._excelRank - b._excelRank;
+      return a._excelIndex - b._excelIndex;
+    });
+
+    batchResults = results;
+    updateOutputArea();
+  });
+
+  // Clear button
+  document.getElementById('batchClearBtn').addEventListener('click', function() {
+    document.getElementById('batchInput').value = '';
+    document.getElementById('batchOutputArea').value = '';
+    batchResults = [];
+  });
+
+  // Generate copy text from batchResults
+  function generateCopyText() {
+    if (batchResults.length === 0) return '';
+
+    var seen = {};
+    var unique = [];
+    batchResults.forEach(function(r) {
+      var key = r['\u54c1\u724c'] + '|' + String(r['\u8f66\u578b']);
+      if (!seen[key]) {
+        seen[key] = true;
+        unique.push(r);
+      }
+    });
+
+    // Sort by Excel rank ascending, then Excel default order for same rank
+    unique.sort(function(a, b) {
+      var rankA = a._excelRank || 9999, rankB = b._excelRank || 9999;
+      if (rankA !== rankB) return rankA - rankB;
+      return (a._excelIndex || 0) - (b._excelIndex || 0);
+    });
+
+    var parts = [];
+    var lastMake = '';
+    unique.forEach(function(r) {
+      var make = r['\u54c1\u724c'];
+      var model = String(r['\u8f66\u578b']);
+      if (make !== lastMake) {
+        parts.push(make);
+        lastMake = make;
+      }
+      parts.push(model);
+    });
+    return parts.join(' ');
+  }
+
+  // Update output textarea
+  function updateOutputArea() {
+    var text = generateCopyText();
+    document.getElementById('batchOutputArea').value = text;
+  }
+
+  // Copy button - copy from output textarea
+  document.getElementById('batchCopyBtn').addEventListener('click', function() {
+    var textarea = document.getElementById('batchOutputArea');
+    var text = textarea.value;
+    if (!text) return;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() {
+        showCopyToast();
+      });
+    } else {
+      // Fallback: select the readonly textarea content and copy
+      textarea.select();
+      document.execCommand('copy');
+      showCopyToast();
+    }
+  });
+
+  function showCopyToast() {
+    var btn = document.getElementById('batchCopyBtn');
+    var origText = btn.innerHTML;
+    btn.innerHTML = '&#9989; 已复制到剪贴板！';
+    btn.style.background = '#059669';
+    setTimeout(function() {
+      btn.innerHTML = origText;
+      btn.style.background = '';
+    }, 2000);
+  }
+})();
+
+function renderStats(data) {
+  var modelCount = data.length;
+  var totalSales = 0;
+  data.forEach(function(r) { totalSales += r['\u9500\u91cf']; });
+  var avgSales = modelCount > 0 ? Math.round(totalSales / modelCount) : 0;
+
+  document.getElementById('statModels').textContent = formatNumber(modelCount);
+  document.getElementById('statTotal').textContent = formatNumber(totalSales);
+  document.getElementById('statAvg').textContent = formatNumber(avgSales);
+
+  // Hot Models section
+  renderHotModels(data);
+}
+
+function renderHotModels(data) {
+  var container = document.getElementById('hotModelsContainer');
+  var body = document.getElementById('hotModelsBody');
+  var countEl = document.getElementById('hotModelsCount');
+
+  if (data.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+
+  // Count unique brands in filtered data
+  var brandSet = {};
+  data.forEach(function(r) { brandSet[r['\u54c1\u724c']] = true; });
+  var brandCount = Object.keys(brandSet).length;
+
+  // Determine rank threshold
+  var rankThreshold = brandCount >= 10 ? 100 : 200;
+
+  // Filter: rank <= threshold, ascending by rank
+  var hot = data.filter(function(r) {
+    return Number(r['\u603b\u6392\u540d']) > 0 && Number(r['\u603b\u6392\u540d']) <= rankThreshold;
+  });
+  hot.sort(function(a, b) { return Number(a['\u603b\u6392\u540d']) - Number(b['\u603b\u6392\u540d']); });
+
+  if (hot.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+
+  container.style.display = 'block';
+  countEl.textContent = '(' + hot.length + ' 条)';
+
+  var html = '';
+  hot.forEach(function(r, i) {
+    var rank = Number(r['\u603b\u6392\u540d']);
+    // Opacity decreases from 1.0 (rank 1) to 0.45 (last item)
+    var opacity = Math.max(0.45, 1.0 - (i / hot.length) * 0.55);
+    html += '<span class="hot-model-chip" style="opacity:' + opacity.toFixed(2) + '" title="Rank #' + rank + '">' + String(r['\u8f66\u578b']) + '</span>';
+  });
+  body.innerHTML = html;
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('tableBody');
+  const totalPages = Math.max(1, Math.ceil(data.length / state.perPage));
+  if (state.page > totalPages) state.page = totalPages;
+  const start = (state.page - 1) * state.perPage;
+  const end = Math.min(start + state.perPage, data.length);
+  const pageData = data.slice(start, end);
+  const maxSales = data.length > 0 ? data[0]['销量'] : 1;
+
+  if (pageData.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><p>没有找到匹配的数据</p></div></td></tr>';
+  } else {
+    let html = '';
+    pageData.forEach((r, i) => {
+      const idx = start + i + 1;
+      const cc = getCountryColor(r['国家']);
+      const ratio = r['品牌总销量'] > 0 ? (r['销量'] / r['品牌总销量'] * 100) : 0;
+      const barWidth = Math.max(1, r['销量'] / maxSales * 100);
+      html += '<tr>';
+      html += '<td class="row-num">' + idx + '</td>';
+      html += '<td>' + r['总排名'] + '</td>';
+      html += '<td><span class="country-badge" style="background:' + cc.bg + ';color:' + cc.color + '">' + r['国家'] + '</span></td>';
+      html += '<td>' + r['总公司'] + '</td>';
+      html += '<td>' + r['品牌'] + '</td>';
+      html += '<td>' + highlightText(String(r['车型']), state.search) + '</td>';
+      html += '<td class="right">' + formatNumber(r['销量']) + '</td>';
+      html += '<td class="right">' + formatNumber(r['品牌总销量']) + '</td>';
+      html += '<td><div class="progress-cell"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:' + barWidth.toFixed(1) + '%"></div></div><span class="progress-pct">' + ratio.toFixed(1) + '%</span></div></td>';
+      html += '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+
+  document.getElementById('resultCount').textContent = '(' + data.length + ' 条结果)';
+  document.getElementById('paginationInfo').textContent = data.length > 0
+    ? '显示 ' + (start + 1) + '-' + end + ' 条，共 ' + data.length + ' 条'
+    : '无结果';
+
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+  const container = document.getElementById('paginationButtons');
+  container.innerHTML = '';
+  if (totalPages <= 1) return;
+
+  const prevBtn = document.createElement('button');
+  prevBtn.className = 'page-btn';
+  prevBtn.textContent = '‹';
+  prevBtn.disabled = state.page === 1;
+  prevBtn.addEventListener('click', () => { state.page--; render(); });
+  container.appendChild(prevBtn);
+
+  const pages = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) pages.push(i);
+  } else {
+    pages.push(1);
+    if (state.page > 3) pages.push('...');
+    const startP = Math.max(2, state.page - 1);
+    const endP = Math.min(totalPages - 1, state.page + 1);
+    for (let i = startP; i <= endP; i++) pages.push(i);
+    if (state.page < totalPages - 2) pages.push('...');
+    pages.push(totalPages);
+  }
+
+  pages.forEach(p => {
+    if (p === '...') {
+      const ell = document.createElement('span');
+      ell.className = 'page-ellipsis';
+      ell.textContent = '...';
+      container.appendChild(ell);
+    } else {
+      const btn = document.createElement('button');
+      btn.className = 'page-btn' + (p === state.page ? ' active' : '');
+      btn.textContent = p;
+      btn.addEventListener('click', () => { state.page = p; render(); });
+      container.appendChild(btn);
+    }
+  });
+
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'page-btn';
+  nextBtn.textContent = '›';
+  nextBtn.disabled = state.page === totalPages;
+  nextBtn.addEventListener('click', () => { state.page++; render(); });
+  container.appendChild(nextBtn);
+}
+</script>
+
+</body>
+</html>
